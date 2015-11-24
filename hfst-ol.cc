@@ -17,6 +17,14 @@
 
 namespace hfst_ol {
 
+template <typename T>
+inline T hfst_deref(T* ptr)
+{
+    T dest;
+    memcpy(&dest, ptr, sizeof(dest));
+    return dest;
+}
+
 void skip_c_string(char ** raw)
 {
     while (**raw != 0) {
@@ -200,30 +208,30 @@ TransducerHeader::TransducerHeader(char** raw)
 
 SymbolNumber
 TransducerHeader::symbol_count()
-  {
+{
     return number_of_symbols; 
-  }
+}
 
 SymbolNumber
 TransducerHeader::input_symbol_count()
-  {
+{
     return number_of_input_symbols; 
-  }
+}
 TransitionTableIndex
 TransducerHeader::index_table_size(void)
-  {
+{
     return size_of_transition_index_table; 
-  }
+}
 
 TransitionTableIndex 
 TransducerHeader::target_table_size()
-  {
+{
     return size_of_transition_target_table; 
-  }
+}
 
 bool
 TransducerHeader::probe_flag(HeaderFlag flag)
-  {
+{
     switch (flag) {
     case Weighted:
         return weighted;
@@ -245,32 +253,32 @@ TransducerHeader::probe_flag(HeaderFlag flag)
         return has_unweighted_input_epsilon_cycles;
     }
     return false;
-  }
+}
 
 bool
 FlagDiacriticOperation::isFlag() const
-  {
+{
     return feature != NO_SYMBOL; 
-  }
+}
 
 FlagDiacriticOperator
 FlagDiacriticOperation::Operation() const
-  {
+{
     return operation;
-  }
+}
 
 SymbolNumber
 FlagDiacriticOperation::Feature() const
-  {
+{
     return feature;
-  }
+}
 
 
 ValueNumber
 FlagDiacriticOperation::Value() const
-  {
+{
     return value;
-  }
+}
 
 
 void TransducerAlphabet::read(FILE * f, SymbolNumber number_of_symbols)
@@ -442,18 +450,18 @@ TransducerAlphabet::TransducerAlphabet(FILE* f, SymbolNumber number_of_symbols):
     unknown_symbol(NO_SYMBOL),
     identity_symbol(NO_SYMBOL),
     orig_symbol_count(number_of_symbols)
-        {
-            read(f, number_of_symbols);
-        }
+{
+    read(f, number_of_symbols);
+}
 
 TransducerAlphabet::TransducerAlphabet(char** raw,
                                        SymbolNumber number_of_symbols):
     unknown_symbol(NO_SYMBOL),
     identity_symbol(NO_SYMBOL),
     orig_symbol_count(number_of_symbols)
-        {
-            read(raw, number_of_symbols);
-        }
+{
+    read(raw, number_of_symbols);
+}
 
 void TransducerAlphabet::add_symbol(std::string & sym)
 {
@@ -469,33 +477,33 @@ void TransducerAlphabet::add_symbol(char * sym)
 
 KeyTable*
 TransducerAlphabet::get_key_table()
-  {
+{
     return &kt; 
-  }
+}
 
 OperationMap*
 TransducerAlphabet::get_operation_map()
-  {
+{
     return &operations;
-  }
+}
 
 SymbolNumber
 TransducerAlphabet::get_state_size()
-  {
+{
     return flag_state_size;
-  }
+}
 
 SymbolNumber
 TransducerAlphabet::get_unknown() const
-  {
+{
     return unknown_symbol;
-  }
+}
 
 SymbolNumber
 TransducerAlphabet::get_identity() const
-  {
+{
     return identity_symbol;
-  }
+}
 
 SymbolNumber TransducerAlphabet::get_orig_symbol_count() const
 {
@@ -504,9 +512,9 @@ SymbolNumber TransducerAlphabet::get_orig_symbol_count() const
 
 StringSymbolMap*
 TransducerAlphabet::get_string_to_symbol()
-  {
+{
     return &string_to_symbol;
-  }
+}
 
 bool TransducerAlphabet::has_string(std::string const & s) const
 {
@@ -515,9 +523,9 @@ bool TransducerAlphabet::has_string(std::string const & s) const
 
 bool
 TransducerAlphabet::is_flag(SymbolNumber symbol)
-  {
+{
     return operations.count(symbol) == 1;
-  }
+}
 
 void IndexTable::read(FILE * f,
                       TransitionTableIndex number_of_table_entries)
@@ -589,22 +597,22 @@ SymbolNumber LetterTrie::find_key(char ** p)
 }
 
 LetterTrie::~LetterTrie()
-  {
+{
     for (LetterTrieVector::iterator i = letters.begin();
          i != letters.end(); ++i)
-      {
+    {
         if (*i)
-          { 
+        { 
             delete *i;
-          }
-      }
-   }
+        }
+    }
+}
 
 Encoder::Encoder(KeyTable * kt, SymbolNumber number_of_input_symbols):
-        ascii_symbols(UCHAR_MAX,NO_SYMBOL)
-        {
-            read_input_symbols(kt, number_of_input_symbols);
-        }
+    ascii_symbols(UCHAR_MAX,NO_SYMBOL)
+{
+    read_input_symbols(kt, number_of_input_symbols);
+}
 
 void Encoder::read_input_symbol(const char * s, const int s_num)
 {
@@ -635,9 +643,9 @@ void Encoder::read_input_symbols(KeyTable * kt,
 
 TransitionTableIndex
 TransitionIndex::target() const
-  {
+{
     return first_transition_index;
-  }
+}
 
 bool 
 TransitionIndex::final(void) const
@@ -700,141 +708,144 @@ IndexTable::IndexTable(FILE* f,
                        TransitionTableIndex number_of_table_entries):
     indices(NULL),
     size(number_of_table_entries)
-        {
-            read(f, number_of_table_entries);
-        }
+{
+    read(f, number_of_table_entries);
+}
     
 IndexTable::IndexTable(char ** raw,
                        TransitionTableIndex number_of_table_entries):
     indices(NULL),
     size(number_of_table_entries)
-        {
-            read(raw, number_of_table_entries);
-        }
+{
+    read(raw, number_of_table_entries);
+}
 
 IndexTable::~IndexTable(void)
-        {
-            if (indices) {
-                free(indices);
-            }
-        }
+{
+    if (indices) {
+        free(indices);
+    }
+}
 
 SymbolNumber
 IndexTable::input_symbol(TransitionTableIndex i) const
-        {
-            if (i < size) {
-                return *((SymbolNumber *)
-                         (indices + TransitionIndex::SIZE * i));
-            } else {
-                return NO_SYMBOL;
-            }
-        }
+{
+    if (i < size) {
+        return hfst_deref((SymbolNumber *)
+                          (indices + TransitionIndex::SIZE * i));
+    } else {
+        return NO_SYMBOL;
+    }
+}
 
 TransitionTableIndex
 IndexTable::target(TransitionTableIndex i) const
-  {
-      if (i < size) {
-          return *((TransitionTableIndex *) 
-                   (indices + TransitionIndex::SIZE * i + sizeof(SymbolNumber)));
-      } else {
-          return NO_TABLE_INDEX;
-      }
-  }
+{
+    if (i < size) {
+        return hfst_deref((TransitionTableIndex *) 
+                          (indices + TransitionIndex::SIZE * i +
+                           sizeof(SymbolNumber)));
+    } else {
+        return NO_TABLE_INDEX;
+    }
+}
 
 bool
 IndexTable::final(TransitionTableIndex i) const
-        {
-            return input_symbol(i) == NO_SYMBOL && target(i) != NO_TABLE_INDEX;
-        }
+{
+    return input_symbol(i) == NO_SYMBOL && target(i) != NO_TABLE_INDEX;
+}
 
 Weight
 IndexTable::final_weight(TransitionTableIndex i) const
-        {
-            if (i < size) {
-                return *((Weight *)
-                         (indices + TransitionIndex::SIZE * i + sizeof(SymbolNumber)));
-            } else {
-                return INFINITE_WEIGHT;
-            }
-        }
+{
+    if (i < size) {
+        return hfst_deref((Weight *)
+                          (indices + TransitionIndex::SIZE * i +
+                           sizeof(SymbolNumber)));
+    } else {
+        return INFINITE_WEIGHT;
+    }
+}
 
 TransitionTable::TransitionTable(FILE * f,
                                  TransitionTableIndex transition_count):
     transitions(NULL),
     size(transition_count)
-        {
-            read(f, transition_count);
-        }
+{
+    read(f, transition_count);
+}
   
 TransitionTable::TransitionTable(char ** raw,
-                    TransitionTableIndex transition_count):
+                                 TransitionTableIndex transition_count):
     transitions(NULL),
     size(transition_count)
-        {
-            read(raw, transition_count);
-        }
+{
+    read(raw, transition_count);
+}
 
 TransitionTable::~TransitionTable(void)
-        {
-            if (transitions) {
-                free(transitions);
-            }
-        }
+{
+    if (transitions) {
+        free(transitions);
+    }
+}
 
 SymbolNumber
 TransitionTable::input_symbol(TransitionTableIndex i) const
-        {
-            if (i < size) {
-                return *((SymbolNumber *)
-                         (transitions + Transition::SIZE * i));
-            } else {
-                return NO_SYMBOL;
-            }
-        }
+{
+    if (i < size) {
+        return hfst_deref((SymbolNumber *)
+                          (transitions + Transition::SIZE * i));
+    } else {
+        return NO_SYMBOL;
+    }
+}
 
 SymbolNumber
 TransitionTable::output_symbol(TransitionTableIndex i) const
-        {
-            if (i < size) {
-                return *((SymbolNumber *)
-                         (transitions + Transition::SIZE * i +
-                          sizeof(SymbolNumber)));
-            } else {
-                return NO_SYMBOL;
-            }
-        }
+{
+    if (i < size) {
+        return hfst_deref((SymbolNumber *)
+                          (transitions + Transition::SIZE * i +
+                           sizeof(SymbolNumber)));
+    } else {
+        return NO_SYMBOL;
+    }
+}
 
 TransitionTableIndex
 TransitionTable::target(TransitionTableIndex i) const
-        {
-            if (i < size) {
-                return *((TransitionTableIndex *)
-                         (transitions + Transition::SIZE * i +
-                          2*sizeof(SymbolNumber)));
-            } else {
-                return NO_TABLE_INDEX;
-            }
-        }
+{
+    if (i < size) {
+        return hfst_deref((TransitionTableIndex *)
+                          (transitions + Transition::SIZE * i +
+                           2*sizeof(SymbolNumber)));
+    } else {
+        return NO_TABLE_INDEX;
+    }
+}
 
 Weight
 TransitionTable::weight(TransitionTableIndex i) const
-        {
-            if (i < size) {
-            return *((Weight *)
-                     (transitions + Transition::SIZE * i +
-                      2*sizeof(SymbolNumber) + sizeof(TransitionTableIndex)));
-            } else {
-                return INFINITE_WEIGHT;
-            }
-        }
+{
+    if (i < size) {
+        return hfst_deref((Weight *)
+                          (transitions + Transition::SIZE * i +
+                           2*sizeof(SymbolNumber) +
+                           sizeof(TransitionTableIndex)));
+    } else {
+        return INFINITE_WEIGHT;
+    }
+}
 
 bool
 TransitionTable::final(TransitionTableIndex i) const
-        {
-            return input_symbol(i) == NO_SYMBOL &&
-                output_symbol(i) == NO_SYMBOL &&
-                target(i) == 1;
-        }
+{
+    return input_symbol(i) == NO_SYMBOL &&
+        output_symbol(i) == NO_SYMBOL &&
+        target(i) == 1;
+}
 
 SymbolNumber Encoder::find_key(char ** p)
 {
