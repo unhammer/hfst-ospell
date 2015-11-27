@@ -22,6 +22,7 @@
 #include <list>
 #include <stdexcept>
 #include <limits>
+#include <ctime>
 #include "hfst-ol.h"
 
 namespace hfst_ol {
@@ -343,6 +344,9 @@ public:
                              MaxWeightBeam, NbestBeam, MaxWeightNbestBeam } limiting;
     //! what mode we're in
     enum Mode { Check, Correct, Lookup } mode;
+
+    //! stop doing work after this time
+    clock_t max_clock;
     
     //!
     //! Create a speller object form error model and language automata.
@@ -391,7 +395,8 @@ public:
     //! is limited by @a nbest if ≥ 0. 
     CorrectionQueue correct(char * line, int nbest = 0,
                             Weight maxweight = -1.0,
-                            Weight beam = -1.0);
+                            Weight beam = -1.0,
+                            float time_cutoff = 0.0);
 
     bool is_under_weight_limit(Weight w) const;
     void set_limiting_behaviour(int nbest, Weight maxweight, Weight beam);

@@ -49,6 +49,7 @@ static bool analyse = false;
 static unsigned long suggs = 0;
 static hfst_ol::Weight max_weight = -1.0;
 static hfst_ol::Weight beam = -1.0;
+static float time_cutoff = 0.0;
 static std::string error_model_filename = "";
 static std::string lexicon_filename = "";
 #ifdef WINDOWS
@@ -130,6 +131,7 @@ bool print_usage(void)
     "  -n, --limit=N             Show at most N suggestions\n" <<
     "  -w, --max-weight=W        Suppress corrections with weights above W\n" <<
     "  -b, --beam=W              Suppress corrections worse than best candidate by more than W\n" <<
+    "  -t, --time-cutoff=T       Stop trying to find better corrections after T seconds (T is a float)\n" <<
     "  -S, --suggest             Suggest corrections to mispellings\n" <<
     "  -X, --real-word           Also suggest corrections to correct words\n" <<
     "  -m, --error-model         Use this error model (must also give lexicon as option)\n" <<
@@ -446,6 +448,7 @@ int main(int argc, char **argv)
             {"limit",        required_argument, 0, 'n'},
             {"max-weight",   required_argument, 0, 'w'},
             {"beam",         required_argument, 0, 'b'},
+            {"beam",         required_argument, 0, 't'},
             {"suggest",      no_argument,       0, 'S'},
             {"real-word",    no_argument,       0, 'X'},
             {"error-model",  required_argument, 0, 'm'},
@@ -457,7 +460,7 @@ int main(int argc, char **argv)
             };
           
         int option_index = 0;
-        c = getopt_long(argc, argv, "hVvqsan:w:b:SXm:l:k", long_options, &option_index);
+        c = getopt_long(argc, argv, "hVvqsan:w:b:t:SXm:l:k", long_options, &option_index);
         char* endptr = 0;
 
         if (c == -1) // no more options to look at
@@ -514,6 +517,19 @@ int main(int argc, char **argv)
             break;
         case 'b':
             beam = strtof(optarg, &endptr);
+            if (endptr == optarg)
+            {
+                fprintf(stderr, "%s is not a float\n", optarg);
+                exit(1);
+              }
+            else if (*endptr != '\0')
+              {
+                fprintf(stderr, "%s truncated from limit parameter\n", endptr);
+              }
+
+            break;
+        case 't':
+            time_cutoff = strtof(optarg, &endptr);
             if (endptr == optarg)
             {
                 fprintf(stderr, "%s is not a float\n", optarg);

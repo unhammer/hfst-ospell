@@ -62,6 +62,8 @@ namespace hfst_ol
             void set_weight_limit(Weight limit);
             //! @brief set search beam
             void set_beam(Weight beam);
+            //! @brief set time cutoff for correcting
+            void set_time_cutoff(float time_cutoff);
             //! @brief construct speller from named file containing valid
             //!        zhfst archive.
             void read_zhfst(const std::string& filename);
@@ -97,6 +99,8 @@ namespace hfst_ol
             Weight maximum_weight_;
             //! @brief upper bound for search beam around best candidate
             Weight beam_;
+            //! @brief upper bound for search time in seconds
+            float time_cutoff_;
             //! @brief whether automatons loaded yet can be used to check
             //!        spelling
             bool can_spell_;
