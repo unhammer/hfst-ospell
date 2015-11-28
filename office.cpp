@@ -70,12 +70,6 @@ bool uc_first = false;
 bool uc_all = true;
 
 bool find_alternatives(ZHfstOspeller& speller, size_t suggs) {
-	/* Weights make this entirely pointless
-	size_t dist = std::max(static_cast<size_t>(1), static_cast<size_t>(std::log(words[cw-1].buffer.size()) / std::log(2)));
-	speller.set_weight_limit(dist);
-	speller.set_beam(dist / 2);
-	//*/
-
 	for (size_t k=1 ; k <= cw ; ++k) {
 		buffer.clear();
 		words[cw-k].buffer.toUTF8String(buffer);
@@ -120,7 +114,7 @@ bool find_alternatives(ZHfstOspeller& speller, size_t suggs) {
 	return false;
 }
 
-bool is_valid_word(ZHfstOspeller& speller, const std::string& word) {
+bool is_valid_word(ZHfstOspeller& speller, const std::string& word, size_t suggs) {
 	ubuffer.setTo(UnicodeString::fromUTF8(word));
 
 	uc_first = false;
@@ -193,7 +187,8 @@ bool is_valid_word(ZHfstOspeller& speller, const std::string& word) {
 	}
 
 	for (size_t i=0, e=cw ; i<e ; ++i) {
-		valid_words_t::iterator it = valid_words.find(words[i].buffer);
+		// If we are looking for suggestions, don't use the cache
+		valid_words_t::iterator it = suggs ? valid_words.end() : valid_words.find(words[i].buffer);
 
 		if (it == valid_words.end()) {
 			buffer.clear();
@@ -215,7 +210,7 @@ bool is_valid_word(ZHfstOspeller& speller, const std::string& word) {
 				++cw;
 
 				// Don't try again if the lower cased variant has already been tried
-				valid_words_t::iterator itl = valid_words.find(ubuffer);
+				valid_words_t::iterator itl = suggs ? valid_words.end() : valid_words.find(ubuffer);
 				if (itl != valid_words.end()) {
 					it->second = itl->second;
 					it = itl;
@@ -280,7 +275,7 @@ int zhfst_spell(const char* zhfst_filename) {
 			continue;
 		}
 
-		if (is_valid_word(speller, line)) {
+		if (is_valid_word(speller, line, suggs)) {
 			std::cout << "*" << std::endl;
 			continue;
 		}
