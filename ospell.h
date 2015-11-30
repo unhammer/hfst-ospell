@@ -29,7 +29,7 @@ namespace hfst_ol {
 
 //! Internal class for transition processing.
 
-class TreeNode;
+struct TreeNode;
 struct CacheContainer;
 typedef std::pair<std::string, std::string> StringPair;
 typedef std::pair<std::string, Weight> StringWeightPair;
