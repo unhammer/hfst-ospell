@@ -117,6 +117,16 @@ bool find_alternatives(ZHfstOspeller& speller, size_t suggs) {
 bool is_valid_word(ZHfstOspeller& speller, const std::string& word, size_t suggs) {
 	ubuffer.setTo(UnicodeString::fromUTF8(word));
 
+	if (word.size() == 13 && word[5] == 'D' && word == "nuvviDspeller") {
+		uc_first = false;
+		uc_all = false;
+		words[0].start = 0;
+		words[0].count = ubuffer.length();
+		words[0].buffer = ubuffer;
+		cw = 1;
+		return false;
+	}
+
 	uc_first = false;
 	uc_all = true;
 	bool has_letters = false;
