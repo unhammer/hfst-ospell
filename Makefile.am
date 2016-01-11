@@ -26,11 +26,11 @@ endif # EXTRA_DEMOS
 
 if HFST_OSPELL_OFFICE
 MAYBE_HFST_OSPELL_OFFICE=hfst-ospell-office
-endif # HFST_OSPELL_OFFICE 
+endif # HFST_OSPELL_OFFICE
 
 bin_PROGRAMS=hfst-ospell $(MAYBE_HFST_OSPELL_OFFICE) $(CONFERENCE_DEMOS)
 lib_LTLIBRARIES=libhfstospell.la
-man1_MANS=hfst-ospell.1
+man1_MANS=hfst-ospell.1 hfst-ospell-office.1
 
 PKG_LIBS=
 PKG_CXXFLAGS=
