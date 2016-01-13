@@ -349,6 +349,10 @@ public:
     double max_time;
     //! when we started work
     clock_t start_clock;
+    // A counter to avoid checking the clock too often
+    unsigned long call_counter;
+    // A flag to set for when time has been overstepped
+    bool limit_reached;
     
     //!
     //! Create a speller object form error model and language automata.

@@ -853,6 +853,8 @@ CorrectionQueue Speller::correct(char * line, int nbest,
     if (time_cutoff > 0.0) {
         max_time = time_cutoff;
         start_clock = clock();
+        call_counter = 0;
+        limit_reached = false;
     }
     set_limiting_behaviour(nbest, maxweight, beam);
     nbest_queue = WeightQueue();
@@ -906,8 +908,13 @@ CorrectionQueue Speller::correct(char * line, int nbest,
     // queue.assign(1, start_node);
 
     while (queue.size() > 0) {
+        // Have we spent too much time?
         if (max_time > 0.0) {
-            if (((double (clock() - start_clock)) / CLOCKS_PER_SEC) > max_time) {
+            ++call_counter;
+            if (limit_reached ||
+                (call_counter % 1000000 == 0 &&
+                 (((double)(clock() - start_clock)) / CLOCKS_PER_SEC) > max_time)) {
+                limit_reached = true;
                 break;
             }
         }
