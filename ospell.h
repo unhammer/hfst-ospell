@@ -345,8 +345,10 @@ public:
     //! what mode we're in
     enum Mode { Check, Correct, Lookup } mode;
 
-    //! stop doing work after this time
-    clock_t max_clock;
+    //! the maximum amount of time to take
+    double max_time;
+    //! when we started work
+    clock_t start_clock;
     
     //!
     //! Create a speller object form error model and language automata.

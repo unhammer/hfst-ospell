@@ -225,8 +225,7 @@ Speller::Speller(Transducer* mutator_ptr, Transducer* lexicon_ptr):
         alphabet_translator(SymbolVector()),
         operations(lexicon->get_operations()),
         limiting(None),
-        mode(Correct),
-        max_clock(-1)
+        mode(Correct)
             {
                 if (mutator != NULL) {
                     build_alphabet_translator();
@@ -850,10 +849,10 @@ CorrectionQueue Speller::correct(char * line, int nbest,
     if (!init_input(line)) {
         return CorrectionQueue();
     }
+    max_time = 0.0;
     if (time_cutoff > 0.0) {
-        max_clock = clock() + CLOCKS_PER_SEC*time_cutoff;
-    } else {
-        max_clock = -1;
+        max_time = time_cutoff;
+        start_clock = clock();
     }
     set_limiting_behaviour(nbest, maxweight, beam);
     nbest_queue = WeightQueue();
@@ -907,8 +906,10 @@ CorrectionQueue Speller::correct(char * line, int nbest,
     // queue.assign(1, start_node);
 
     while (queue.size() > 0) {
-        if (max_clock > -1 && clock() > max_clock) {
-            break;
+        if (max_time > 0.0) {
+            if (((double (clock() - start_clock)) / CLOCKS_PER_SEC) > max_time) {
+                break;
+            }
         }
         /*
           For depth-first searching, we save the back node now, remove it
