@@ -17,7 +17,7 @@
 
 # autoconf requirements
 AC_PREREQ([2.62])
-AC_INIT([hfstospell], [0.3.1], [hfst-bugs@helsinki.fi], [hfstospell], [http://hfst.sf.net])
+AC_INIT([hfstospell], [0.4.0], [hfst-bugs@helsinki.fi], [hfstospell], [http://hfst.sf.net])
 
 LT_PREREQ([2.2.6])
 
@@ -33,8 +33,8 @@ AC_CONFIG_HEADERS([config.h])
 # Information on package
 HFSTOSPELL_NAME=hfstospell
 HFSTOSPELL_MAJOR=0
-HFSTOSPELL_MINOR=3
-HFSTOSPELL_EXTENSION=.1
+HFSTOSPELL_MINOR=4
+HFSTOSPELL_EXTENSION=.0
 HFSTOSPELL_VERSION=$HFSTOSPELL_MAJOR.$HFSTOSPELL_MINOR$HFSTOSPELL_EXTENSION
 AC_SUBST(HFSTOSPELL_MAJOR)
 AC_SUBST(HFSTOSPELL_MINOR)

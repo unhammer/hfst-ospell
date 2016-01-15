@@ -4,6 +4,16 @@ NEWS for hfst-ospell
 This file contains all noteworthy changes in HFST-ospell development between
 releases.  For full listing of changes see ChangeLog.
 
+Noteworthy changes in 0.4.0
+---------------------------
+
+* add option --beam to hfst-ospell for restricting the search to a margin above the optimum
+* add option --time-cutoff to hfst-ospell for restricting the time spent on searching for better corrections
+* add option --enable-hfst-ospell-office to configure (defaults to yes)
+* use libarchive2 if libarchive3 is not available
+* determine and use highest supported C++ standard when compiling
+* support unknown and identity arcs both in the lexicon and error model
+
 Noteworthy changes in 0.3.0
 ---------------------------
 
