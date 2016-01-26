@@ -61,7 +61,7 @@ struct word_t {
 	size_t start, count;
 	UnicodeString buffer;
 };
-std::vector<word_t> words(8);
+std::vector<word_t> words(16);
 std::string buffer;
 UnicodeString ubuffer, uc_buffer;
 size_t cw;
