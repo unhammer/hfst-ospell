@@ -275,6 +275,7 @@ int zhfst_spell(const char* zhfst_filename) {
 	ZHfstOspeller speller;
 	try {
 		speller.read_zhfst(zhfst_filename);
+		speller.set_time_cutoff(6.0);
 	}
 	catch (hfst_ol::ZHfstMetaDataParsingError zhmdpe) {
 		fprintf(stderr, "cannot finish reading zhfst archive %s:\n%s.\n", zhfst_filename, zhmdpe.what());
