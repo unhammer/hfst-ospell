@@ -269,10 +269,10 @@ err.hfstol: errmodel.default.hfst
 	-ln -sf $< $@
 
 .txt.hfst:
-	hfst-txt2fst $(HFST_FLAGS) $< | hfst-fst2fst $(HFST_FLAGS) -f olw -o $@
+	hfst-txt2fst $< | hfst-fst2fst -f olw -o $@
 
 .txt.hfstol:
-	hfst-txt2fst $(HFST_FLAGS) $< | hfst-fst2fst $(HFST_FLAGS) -f olw -o $@
+	hfst-txt2fst $< | hfst-fst2fst -f olw -o $@
 
 hfst-ospell.1: hfst-ospell
 	help2man --no-discard-stderr $< > $@

@@ -207,7 +207,7 @@ no_errormodel.zhfst: acceptor.basic.hfst no_errmodel.xml
 	-rm -f index.xml acceptor.default.hfst
 
 .txt.hfst:
-	hfst-txt2fst -e "@0@" $(HFST_FLAGS) $< | hfst-fst2fst $(HFST_FLAGS) -f olw -o $@
+	hfst-txt2fst -e "@0@" $< | hfst-fst2fst -f olw -o $@
 
 if CAN_DOXYGEN
 doxygen:
