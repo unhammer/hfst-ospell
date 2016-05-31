@@ -280,7 +280,14 @@ void Speller::lexicon_consume(void)
         // no more input
         return;
     }
-    SymbolNumber this_input = alphabet_translator[input[input_state]];
+    SymbolNumber this_input;
+    if (mutator != NULL) {
+        this_input = alphabet_translator[input[input_state]];
+    } else {
+        // To support zhfst spellers without error models, we allow
+        // for the case with plain lexicon symbols
+        this_input = input[input_state];
+    }
     if(!lexicon->has_transitions(
            next_node.lexicon_state + 1, this_input)) {
         // we have no regular transitions for this
@@ -1115,10 +1122,14 @@ bool Speller::init_input(char * line)
     SymbolNumber k = NO_SYMBOL;
     char ** inpointer = &line;
     char * oldpointer;
-    
+
     while (**inpointer != '\0') {
         oldpointer = *inpointer;
-        k = mutator->get_encoder()->find_key(inpointer);
+        if (mutator != NULL) {
+            k = mutator->get_encoder()->find_key(inpointer);
+        } else {
+            k = lexicon->get_encoder()->find_key(inpointer);
+        }
         if (k == NO_SYMBOL) { // no tokenization from alphabet
             int bytes_to_tokenize = nByte_utf8(static_cast<unsigned char>(*oldpointer));
             if (bytes_to_tokenize == 0) {
@@ -1137,14 +1148,16 @@ bool Speller::init_input(char * line)
                 SymbolNumber k_lexicon = lexicon->get_alphabet()->get_string_to_symbol()
                     ->operator[](new_symbol_string);
                 lexicon->get_encoder()->read_input_symbol(new_symbol, k_lexicon);
-                if (!mutator->get_alphabet()->has_string(new_symbol_string)) {
-                    mutator->get_alphabet()->add_symbol(new_symbol_string);
-                }
-                k = mutator->get_alphabet()->get_string_to_symbol()->
-                    operator[](new_symbol_string);
-                mutator->get_encoder()->read_input_symbol(new_symbol, k);
-                if (k >= alphabet_translator.size()) {
-                    add_symbol_to_alphabet_translator(k_lexicon);
+                if (mutator != NULL) {
+                    if (!mutator->get_alphabet()->has_string(new_symbol_string)) {
+                        mutator->get_alphabet()->add_symbol(new_symbol_string);
+                    }
+                    k = mutator->get_alphabet()->get_string_to_symbol()->
+                        operator[](new_symbol_string);
+                    mutator->get_encoder()->read_input_symbol(new_symbol, k);
+                    if (k >= alphabet_translator.size()) {
+                        add_symbol_to_alphabet_translator(k_lexicon);
+                    }
                 }
                 input.push_back(k);
                 continue;

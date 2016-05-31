@@ -132,7 +132,7 @@ TESTS=basic-zhfst.sh basic-edit1.sh \
 	  empty-descriptions.sh empty-titles.sh empty-locale.sh \
 	  trailing-spaces.sh bad-errormodel.sh empty-zhfst.sh \
 	  analyse-spell.sh no-errormodel.sh
-XFAIL_TESTS=empty-descriptions.sh empty-titles.sh empty-locale.sh empty-zhfst.sh no-errormodel.sh
+XFAIL_TESTS=empty-descriptions.sh empty-titles.sh empty-locale.sh empty-zhfst.sh
 EXTRA_DIST=$(TXTS) $(TESTS) $(man1_MANS)\
 			basic_test.xml empty_descriptions.xml empty_titles.xml \
 			empty_locale.xml trailing_spaces.xml no_errmodel.xml \
