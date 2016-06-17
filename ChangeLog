@@ -1,4 +1,11 @@
-29649b1 (HEAD -> master, origin/master, origin/HEAD) Set gitignores.
+e9cc1da (HEAD -> master, origin/master, origin/HEAD) Prevent segfaults from no-errormodel.sh test This also makes the test succeed rather than XLFAIL, so removed it from XFAIL_TESTS (why not?)
+6d359c0 Remove unused $(HFST_FLAGS) variable that may be leading to some test failures
+b31fec1 markdown
+9fa49a2 not supporting default autostuff like promised...
+c53090d Merge branch 'master' of github.com:hfst/hfst-ospell
+4b07bf5 experimental ci
+f582bac (tag: v0.4.1) Release 0.4.1.
+29649b1 Set gitignores.
 31e6842 Bump patch version since revision has decreased
 d2fb71e set_time_cutoff(6.0)
 08bc7a9 When upping to 16 variants, also make room for all 16 variants
