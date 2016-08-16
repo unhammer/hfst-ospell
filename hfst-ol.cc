@@ -33,41 +33,107 @@ void skip_c_string(char ** raw)
     ++(*raw);
 }
 
+bool is_big_endian(void)
+{
+    union {
+        uint32_t i;
+        int8_t c[4];
+    } to_check = {0x01000000};
+    return to_check.c[0] == 1; 
+}
+
+uint16_t read_uint16_flipping_endianness(FILE * f)
+{
+    uint16_t result = 0;
+    unsigned char byte1 = getc(f);
+    unsigned char byte2 = getc(f);
+    result |= byte2;
+    result <<= 8;
+    result |= byte1;
+}
+
+uint16_t read_uint16_flipping_endianness(char * raw)
+{
+    uint16_t result = 0;
+    result |= *(raw + 1);
+    result <<= 8;
+    result |= *raw;
+}
+
+uint32_t read_uint32_flipping_endianness(FILE * f)
+{
+    uint32_t result = 0;
+    unsigned char byte1 = getc(f);
+    unsigned char byte2 = getc(f);
+    unsigned char byte3 = getc(f);
+    unsigned char byte4 = getc(f);
+    result |= byte4;
+    result <<= 8;
+    result |= byte3;
+    result <<= 8;
+    result |= byte2;
+    result <<= 8;
+    result |= byte1;
+}
+
+uint32_t read_uint32_flipping_endianness(char * raw)
+{
+    uint32_t result = 0;
+    result |= *(raw + 3);
+    result <<= 8;
+    result |= *(raw + 2);
+    result <<= 8;
+    result |= *(raw + 1);
+    result <<= 8;
+    result |= *raw;
+}
+
+float read_float_flipping_endianness(FILE * f)
+{
+    union {
+        float f;
+        char c[4];
+    } flipper;
+    
+}
+
 void
 TransducerHeader::read_property(bool& property, FILE* f)
 {
-    unsigned int prop;
-    if (fread(&prop,sizeof(unsigned int),1,f) != 1) {
-        HFST_THROW_MESSAGE(HeaderParsingException,
-                           "Header ended unexpectedly\n");
-    }
-    if (prop == 0)
-    {
-        property = false;
-        return;
-    }
-    else
-    {
-        property = true;
-        return;
+    if (is_big_endian()) {
+        // four little-endian bytes
+        char c = getc(f);
+        property = !(c == 0);
+        c = getc(f);
+        c = getc(f);
+        c = getc(f);
+    } else {
+        unsigned int prop;
+        if (fread(&prop,sizeof(uint32_t),1,f) != 1) {
+            HFST_THROW_MESSAGE(HeaderParsingException,
+                               "Header ended unexpectedly\n");
+        }
+        if (prop == 0)
+        {
+            property = false;
+        }
+        else
+        {
+            property = true;
+        }
     }
 }
 
 void
 TransducerHeader::read_property(bool& property, char** raw)
 {
-    unsigned int prop = *((unsigned int *) *raw);
-    (*raw) += sizeof(unsigned int);
-    if (prop == 0)
-    {
-        property = false;
-        return;
+    if (is_big_endian()) {
+        property = !(**raw == 0);
+    } else {
+        unsigned int prop = *((unsigned int *) *raw);
+        property = !(prop == 0);
     }
-    else
-    {
-        property = true;
-        return;
-    }
+    (*raw) += sizeof(uint32_t);
 }
 
 void TransducerHeader::skip_hfst3_header(FILE * f)
@@ -84,12 +150,16 @@ void TransducerHeader::skip_hfst3_header(FILE * f)
     }
     if(header_loc == strlen(header1) + 1) // we found it
     {
-        unsigned short remaining_header_len;
-        if (fread(&remaining_header_len,
-                  sizeof(remaining_header_len), 1, f) != 1 ||
-            getc(f) != '\0') {
-            HFST_THROW_MESSAGE(HeaderParsingException,
-                               "Found broken HFST3 header\n");
+        uint16_t remaining_header_len = 0;
+        if (is_big_endian()) {
+            remaining_header_len = read_uint16_flipping_endianness(f);
+        } else {
+            if (fread(&remaining_header_len,
+                      sizeof(remaining_header_len), 1, f) != 1 ||
+                getc(f) != '\0') {
+                HFST_THROW_MESSAGE(HeaderParsingException,
+                                   "Found broken HFST3 header\n");
+            }
         }
         char * headervalue = new char[remaining_header_len];
         if (fread(headervalue, remaining_header_len, 1, f) != 1)
@@ -137,8 +207,13 @@ void TransducerHeader::skip_hfst3_header(char ** raw)
     }
     if(header_loc == strlen(header1) + 1) // we found it
     {
-        unsigned short remaining_header_len = *((unsigned short *) *raw);
-        (*raw) += sizeof(unsigned short) + 1 + remaining_header_len;
+        uint16_t remaining_header_len = 0;
+        if (is_big_endian()) {
+            remaining_header_len = read_uint16_flipping_endianness(*raw);
+        } else {
+            *((unsigned short *) *raw);
+        }
+        (*raw) += sizeof(uint16_t) + 1 + remaining_header_len;
     } else // nope. put back what we've taken
     {
         --(*raw); // first the non-matching character
@@ -152,22 +227,32 @@ void TransducerHeader::skip_hfst3_header(char ** raw)
 TransducerHeader::TransducerHeader(FILE* f)
 {
     skip_hfst3_header(f); // skip header iff it is present
-    /* The following conditional clause does all the numerical reads
-       and throws an exception if any fails to return 1 */
-    if (fread(&number_of_input_symbols,
-              sizeof(SymbolNumber),1,f) != 1||
-        fread(&number_of_symbols,
-              sizeof(SymbolNumber),1,f) != 1||
-        fread(&size_of_transition_index_table,
-              sizeof(TransitionTableIndex),1,f) != 1||
-        fread(&size_of_transition_target_table,
-              sizeof(TransitionTableIndex),1,f) != 1||
-        fread(&number_of_states,
-              sizeof(TransitionTableIndex),1,f) != 1||
-        fread(&number_of_transitions,
-              sizeof(TransitionTableIndex),1,f) != 1) {
-        HFST_THROW_MESSAGE(HeaderParsingException,
-                           "Header ended unexpectedly\n");
+    if (is_big_endian()) {
+        // no error checking yet
+        number_of_input_symbols = read_uint16_flipping_endianness(f);
+        number_of_symbols = read_uint16_flipping_endianness(f);
+        size_of_transition_index_table = read_uint32_flipping_endianness(f);
+        size_of_transition_target_table = read_uint32_flipping_endianness(f);
+        number_of_states = read_uint32_flipping_endianness(f);
+        number_of_transitions = read_uint32_flipping_endianness(f);
+    } else {
+        /* The following conditional clause does all the numerical reads
+           and throws an exception if any fails to return 1 */
+        if (fread(&number_of_input_symbols,
+                  sizeof(SymbolNumber),1,f) != 1||
+            fread(&number_of_symbols,
+                  sizeof(SymbolNumber),1,f) != 1||
+            fread(&size_of_transition_index_table,
+                  sizeof(TransitionTableIndex),1,f) != 1||
+            fread(&size_of_transition_target_table,
+                  sizeof(TransitionTableIndex),1,f) != 1||
+            fread(&number_of_states,
+                  sizeof(TransitionTableIndex),1,f) != 1||
+            fread(&number_of_transitions,
+                  sizeof(TransitionTableIndex),1,f) != 1) {
+            HFST_THROW_MESSAGE(HeaderParsingException,
+                               "Header ended unexpectedly\n");
+        }
     }
     read_property(weighted,f);
     read_property(deterministic,f);
@@ -183,18 +268,33 @@ TransducerHeader::TransducerHeader(FILE* f)
 TransducerHeader::TransducerHeader(char** raw)
 {
     skip_hfst3_header(raw); // skip header iff it is present
-    number_of_input_symbols = *(SymbolNumber*) *raw;
-    (*raw) += sizeof(SymbolNumber);
-    number_of_symbols = *(SymbolNumber*) *raw;
-    (*raw) += sizeof(SymbolNumber);
-    size_of_transition_index_table = *(TransitionTableIndex*) *raw;
-    (*raw) += sizeof(TransitionTableIndex);
-    size_of_transition_target_table = *(TransitionTableIndex*) *raw;
-    (*raw) += sizeof(TransitionTableIndex);
-    number_of_states = *(TransitionTableIndex*) *raw;
-    (*raw) += sizeof(TransitionTableIndex);
-    number_of_transitions = *(TransitionTableIndex*) *raw;
-    (*raw) += sizeof(TransitionTableIndex);
+    if (is_big_endian()) {
+        number_of_input_symbols = read_uint16_flipping_endianness(*raw);
+        (*raw) += sizeof(SymbolNumber);
+        number_of_symbols = read_uint16_flipping_endianness(*raw);
+        (*raw) += sizeof(SymbolNumber);
+        size_of_transition_index_table = read_uint32_flipping_endianness(*raw);
+        (*raw) += sizeof(TransitionTableIndex);
+        size_of_transition_target_table = read_uint32_flipping_endianness(*raw);
+        (*raw) += sizeof(TransitionTableIndex);
+        number_of_states = read_uint32_flipping_endianness(*raw);
+        (*raw) += sizeof(TransitionTableIndex);
+        number_of_transitions = read_uint32_flipping_endianness(*raw);
+        (*raw) += sizeof(TransitionTableIndex);
+    } else {
+        number_of_input_symbols = *(SymbolNumber*) *raw;
+        (*raw) += sizeof(SymbolNumber);
+        number_of_symbols = *(SymbolNumber*) *raw;
+        (*raw) += sizeof(SymbolNumber);
+        size_of_transition_index_table = *(TransitionTableIndex*) *raw;
+        (*raw) += sizeof(TransitionTableIndex);
+        size_of_transition_target_table = *(TransitionTableIndex*) *raw;
+        (*raw) += sizeof(TransitionTableIndex);
+        number_of_states = *(TransitionTableIndex*) *raw;
+        (*raw) += sizeof(TransitionTableIndex);
+        number_of_transitions = *(TransitionTableIndex*) *raw;
+        (*raw) += sizeof(TransitionTableIndex);
+    }
     read_property(weighted,raw);
     read_property(deterministic,raw);
     read_property(input_deterministic,raw);
@@ -535,6 +635,9 @@ void IndexTable::read(FILE * f,
     if (fread(indices,table_size, 1, f) != 1) {
         HFST_THROW(IndexTableReadingException);
     }
+    if (is_big_endian()) {
+        convert_to_big_endian();
+    }
 }
 
 void IndexTable::read(char ** raw,
@@ -544,6 +647,32 @@ void IndexTable::read(char ** raw,
     indices = (char*)(malloc(table_size));
     memcpy((void *) indices, (const void *) *raw, table_size);
     (*raw) += table_size;
+    if (is_big_endian()) {
+        convert_to_big_endian();
+    }
+}
+
+void IndexTable::convert_to_big_endian(void)
+{
+    // We have a sequence of uint_16's and uint_32's in memory,
+    // and we're going to flip endianness of each one.
+    for(size_t i = 0; i < size; ++i) {
+        char char1, char2, char3, char4;
+        // first the uint_16
+        char1 = *(indices + i * TransitionIndex::SIZE + 0);
+        char2 = *(indices + i * TransitionIndex::SIZE + 1);
+        *(indices + i * TransitionIndex::SIZE + 0) = char2;
+        *(indices + i * TransitionIndex::SIZE + 1) = char1;
+        // then the uint_32
+        char1 = *(indices + i * TransitionIndex::SIZE + 2);
+        char2 = *(indices + i * TransitionIndex::SIZE + 3);
+        char3 = *(indices + i * TransitionIndex::SIZE + 4);
+        char4 = *(indices + i * TransitionIndex::SIZE + 5);
+        *(indices + i * TransitionIndex::SIZE + 0) = char4;
+        *(indices + i * TransitionIndex::SIZE + 1) = char3;
+        *(indices + i * TransitionIndex::SIZE + 2) = char2;
+        *(indices + i * TransitionIndex::SIZE + 3) = char1;
+    }
 }
 
 void TransitionTable::read(FILE * f,
@@ -554,6 +683,9 @@ void TransitionTable::read(FILE * f,
     if (fread(transitions, table_size, 1, f) != 1) {
         HFST_THROW(TransitionTableReadingException);
     }
+    if (is_big_endian()) {
+        convert_to_big_endian();
+    }
 }
 
 void TransitionTable::read(char ** raw,
@@ -563,6 +695,46 @@ void TransitionTable::read(char ** raw,
     transitions = (char*)(malloc(table_size));
     memcpy((void *) transitions, (const void *) *raw, table_size);
     (*raw) += table_size;
+    if (is_big_endian()) {
+        convert_to_big_endian();
+    }
+}
+
+void TransitionTable::convert_to_big_endian(void)
+{
+    // We have a sequence of [ uint_16, uint_16, uint_32, float ] in memory,
+    // and we're going to flip endianness of each one.
+    for(size_t i = 0; i < size; ++i) {
+        char char1, char2, char3, char4;
+        // first the uint_16
+        char1 = *(transitions + i * TransitionIndex::SIZE + 0);
+        char2 = *(transitions + i * TransitionIndex::SIZE + 1);
+        *(transitions + i * TransitionIndex::SIZE + 0) = char2;
+        *(transitions + i * TransitionIndex::SIZE + 1) = char1;
+        // first the next one
+        char1 = *(transitions + i * TransitionIndex::SIZE + 2);
+        char2 = *(transitions + i * TransitionIndex::SIZE + 3);
+        *(transitions + i * TransitionIndex::SIZE + 3) = char2;
+        *(transitions + i * TransitionIndex::SIZE + 2) = char1;
+        // then the uint_32
+        char1 = *(transitions + i * TransitionIndex::SIZE + 4);
+        char2 = *(transitions + i * TransitionIndex::SIZE + 5);
+        char3 = *(transitions + i * TransitionIndex::SIZE + 6);
+        char4 = *(transitions + i * TransitionIndex::SIZE + 7);
+        *(transitions + i * TransitionIndex::SIZE + 7) = char4;
+        *(transitions + i * TransitionIndex::SIZE + 6) = char3;
+        *(transitions + i * TransitionIndex::SIZE + 5) = char2;
+        *(transitions + i * TransitionIndex::SIZE + 4) = char1;
+        // then the float
+        char1 = *(transitions + i * TransitionIndex::SIZE + 8);
+        char2 = *(transitions + i * TransitionIndex::SIZE + 9);
+        char3 = *(transitions + i * TransitionIndex::SIZE + 10);
+        char4 = *(transitions + i * TransitionIndex::SIZE + 11);
+        *(transitions + i * TransitionIndex::SIZE + 11) = char4;
+        *(transitions + i * TransitionIndex::SIZE + 10) = char3;
+        *(transitions + i * TransitionIndex::SIZE + 9) = char2;
+        *(transitions + i * TransitionIndex::SIZE + 8) = char1;
+    }
 }
 
 void LetterTrie::add_string(const char * p, SymbolNumber symbol_key)

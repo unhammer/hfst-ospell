@@ -35,8 +35,8 @@
 
 namespace hfst_ol {
 
-typedef unsigned short SymbolNumber;
-typedef unsigned int TransitionTableIndex;
+typedef uint16_t SymbolNumber;
+typedef uint32_t TransitionTableIndex;
 typedef std::vector<SymbolNumber> SymbolVector;
 typedef std::vector<std::string> KeyTable;
 typedef std::map<std::string, SymbolNumber> StringSymbolMap;
@@ -70,6 +70,13 @@ enum HeaderFlag {Weighted, Deterministic, Input_deterministic, Minimized,
                  Cyclic, Has_epsilon_epsilon_transitions,
                  Has_input_epsilon_transitions, Has_input_epsilon_cycles,
                  Has_unweighted_input_epsilon_cycles};
+
+// Will probably turn into a compile-time constant
+bool is_big_endian(void);
+uint16_t read_uint16_flipping_endianness(FILE * f);
+uint16_t read_uint16_flipping_endianness(char * raw);
+uint32_t read_uint32_flipping_endianness(char * raw);
+float read_float_flipping_endianness(FILE * f);
 
 // Utility function for dealing with raw memory
 void skip_c_string(char ** raw);
@@ -361,12 +368,12 @@ class IndexTable
 {
 private:
     char * indices;
-  
+    TransitionTableIndex size;
     void read(FILE * f,
               TransitionTableIndex number_of_table_entries);
     void read(char ** raw,
               TransitionTableIndex number_of_table_entries);
-    TransitionTableIndex size;
+    void convert_to_big_endian(void);
 
 public:
     //!
@@ -401,6 +408,7 @@ protected:
     //!
     //! raw transition data
     char * transitions;
+    TransitionTableIndex size;
  
     //!
     //! read known amount of transitions from file @a f
@@ -409,7 +417,7 @@ protected:
     //! read known amount of transitions from raw dara @a data
     void read(char ** raw,
               TransitionTableIndex number_of_table_entries);
-    TransitionTableIndex size;
+    void convert_to_big_endian(void);
 public:
     //! 
     //! read transition table from file @a f
