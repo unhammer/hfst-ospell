@@ -155,11 +155,14 @@ void TransducerHeader::skip_hfst3_header(FILE * f)
             remaining_header_len = read_uint16_flipping_endianness(f);
         } else {
             if (fread(&remaining_header_len,
-                      sizeof(remaining_header_len), 1, f) != 1 ||
-                getc(f) != '\0') {
+                      sizeof(remaining_header_len), 1, f) != 1) {
                 HFST_THROW_MESSAGE(HeaderParsingException,
                                    "Found broken HFST3 header\n");
             }
+        }
+        if (getc(f) != '\0') {
+            HFST_THROW_MESSAGE(HeaderParsingException,
+                               "Found broken HFST3 header\n");
         }
         char * headervalue = new char[remaining_header_len];
         if (fread(headervalue, remaining_header_len, 1, f) != 1)
@@ -211,7 +214,7 @@ void TransducerHeader::skip_hfst3_header(char ** raw)
         if (is_big_endian()) {
             remaining_header_len = read_uint16_flipping_endianness(*raw);
         } else {
-            *((unsigned short *) *raw);
+            remaining_header_len = *((unsigned short *) *raw);
         }
         (*raw) += sizeof(uint16_t) + 1 + remaining_header_len;
     } else // nope. put back what we've taken
