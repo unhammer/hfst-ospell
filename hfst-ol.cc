@@ -106,7 +106,7 @@ void TransducerHeader::skip_hfst3_header(FILE * f)
         if (type_field != std::string::npos) {
             if (header_tail.find("HFST_OL") != type_field + 5 &&
                 header_tail.find("HFST_OLW") != type_field + 5) {
-                delete headervalue;
+                delete[] headervalue;
                 HFST_THROW_MESSAGE(
                     TransducerTypeException,
                     "Transducer has incorrect type, should be "
