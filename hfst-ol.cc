@@ -50,6 +50,7 @@ uint16_t read_uint16_flipping_endianness(FILE * f)
     result |= byte2;
     result <<= 8;
     result |= byte1;
+    return result;
 }
 
 uint16_t read_uint16_flipping_endianness(char * raw)
@@ -58,6 +59,7 @@ uint16_t read_uint16_flipping_endianness(char * raw)
     result |= *(raw + 1);
     result <<= 8;
     result |= *raw;
+    return result;
 }
 
 uint32_t read_uint32_flipping_endianness(FILE * f)
@@ -74,6 +76,7 @@ uint32_t read_uint32_flipping_endianness(FILE * f)
     result |= byte2;
     result <<= 8;
     result |= byte1;
+    return result;
 }
 
 uint32_t read_uint32_flipping_endianness(char * raw)
@@ -86,6 +89,7 @@ uint32_t read_uint32_flipping_endianness(char * raw)
     result |= *(raw + 1);
     result <<= 8;
     result |= *raw;
+    return result;
 }
 
 float read_float_flipping_endianness(FILE * f)
@@ -94,7 +98,7 @@ float read_float_flipping_endianness(FILE * f)
         float f;
         char c[4];
     } flipper;
-    
+    return flipper.f;
 }
 
 void
