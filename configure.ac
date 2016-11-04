@@ -141,6 +141,7 @@ AC_TYPE_SIZE_T
 # Checks for structures
 
 # Checks for compiler characteristics
+AC_C_BIGENDIAN
 
 # Checks for library functions
 AC_FUNC_MALLOC

@@ -14,6 +14,7 @@
 
 #include "hfst-ol.h"
 #include <string>
+#include "config.h"
 
 namespace hfst_ol {
 
@@ -33,13 +34,13 @@ void skip_c_string(char ** raw)
     ++(*raw);
 }
 
-bool is_big_endian(void)
+bool is_big_endian()
 {
-    union {
-        uint32_t i;
-        int8_t c[4];
-    } to_check = {0x01000000};
-    return to_check.c[0] == 1; 
+#ifdef WORDS_BIGENDIAN
+    return true;
+#else
+    return false;
+#endif
 }
 
 uint16_t read_uint16_flipping_endianness(FILE * f)
@@ -149,6 +150,7 @@ void TransducerHeader::skip_hfst3_header(FILE * f)
     {
         c = getc(f);
         if(c != header1[header_loc]) {
+        	//std::cerr << header_loc << ": " << int(c) << " != " << header1[header_loc] << std::endl;
             break;
         }
     }
@@ -164,6 +166,7 @@ void TransducerHeader::skip_hfst3_header(FILE * f)
                                    "Found broken HFST3 header\n");
             }
         }
+        //std::cerr << "remaining_header_len " << remaining_header_len << std::endl;
         if (getc(f) != '\0') {
             HFST_THROW_MESSAGE(HeaderParsingException,
                                "Found broken HFST3 header\n");
@@ -208,6 +211,7 @@ void TransducerHeader::skip_hfst3_header(char ** raw)
     for(header_loc = 0; header_loc < strlen(header1) + 1; header_loc++)
     {
         if(**raw != header1[header_loc]) {
+        	//std::cerr << header_loc << ": " << int(**raw) << " != " << header1[header_loc] << std::endl;
             break;
         }
         ++(*raw);
@@ -220,6 +224,7 @@ void TransducerHeader::skip_hfst3_header(char ** raw)
         } else {
             remaining_header_len = *((unsigned short *) *raw);
         }
+        //std::cerr << "remaining_header_len " << remaining_header_len << std::endl;
         (*raw) += sizeof(uint16_t) + 1 + remaining_header_len;
     } else // nope. put back what we've taken
     {
@@ -261,6 +266,14 @@ TransducerHeader::TransducerHeader(FILE* f)
                                "Header ended unexpectedly\n");
         }
     }
+    /*
+	std::cerr << "number_of_input_symbols " << number_of_input_symbols << std::endl;
+	std::cerr << "number_of_symbols " << number_of_symbols << std::endl;
+	std::cerr << "size_of_transition_index_table " << size_of_transition_index_table << std::endl;
+	std::cerr << "size_of_transition_target_table " << size_of_transition_target_table << std::endl;
+	std::cerr << "number_of_states " << number_of_states << std::endl;
+	std::cerr << "number_of_transitions " << number_of_transitions << std::endl;
+	//*/
     read_property(weighted,f);
     read_property(deterministic,f);
     read_property(input_deterministic,f);
@@ -302,6 +315,14 @@ TransducerHeader::TransducerHeader(char** raw)
         number_of_transitions = *(TransitionTableIndex*) *raw;
         (*raw) += sizeof(TransitionTableIndex);
     }
+    /*
+	std::cerr << "number_of_input_symbols " << number_of_input_symbols << std::endl;
+	std::cerr << "number_of_symbols " << number_of_symbols << std::endl;
+	std::cerr << "size_of_transition_index_table " << size_of_transition_index_table << std::endl;
+	std::cerr << "size_of_transition_target_table " << size_of_transition_target_table << std::endl;
+	std::cerr << "number_of_states " << number_of_states << std::endl;
+	std::cerr << "number_of_transitions " << number_of_transitions << std::endl;
+	//*/
     read_property(weighted,raw);
     read_property(deterministic,raw);
     read_property(input_deterministic,raw);
@@ -316,24 +337,24 @@ TransducerHeader::TransducerHeader(char** raw)
 SymbolNumber
 TransducerHeader::symbol_count()
 {
-    return number_of_symbols; 
+    return number_of_symbols;
 }
 
 SymbolNumber
 TransducerHeader::input_symbol_count()
 {
-    return number_of_input_symbols; 
+    return number_of_input_symbols;
 }
 TransitionTableIndex
-TransducerHeader::index_table_size(void)
+TransducerHeader::index_table_size()
 {
-    return size_of_transition_index_table; 
+    return size_of_transition_index_table;
 }
 
-TransitionTableIndex 
+TransitionTableIndex
 TransducerHeader::target_table_size()
 {
-    return size_of_transition_target_table; 
+    return size_of_transition_target_table;
 }
 
 bool
@@ -365,7 +386,7 @@ TransducerHeader::probe_flag(HeaderFlag flag)
 bool
 FlagDiacriticOperation::isFlag() const
 {
-    return feature != NO_SYMBOL; 
+    return feature != NO_SYMBOL;
 }
 
 FlagDiacriticOperator
@@ -585,7 +606,7 @@ void TransducerAlphabet::add_symbol(char * sym)
 KeyTable*
 TransducerAlphabet::get_key_table()
 {
-    return &kt; 
+    return &kt;
 }
 
 OperationMap*
@@ -659,26 +680,17 @@ void IndexTable::read(char ** raw,
     }
 }
 
-void IndexTable::convert_to_big_endian(void)
+void IndexTable::convert_to_big_endian()
 {
+	//std::cerr << "IndexTable::convert_to_big_endian " << size << std::endl;
     // We have a sequence of uint_16's and uint_32's in memory,
     // and we're going to flip endianness of each one.
     for(size_t i = 0; i < size; ++i) {
-        char char1, char2, char3, char4;
         // first the uint_16
-        char1 = *(indices + i * TransitionIndex::SIZE + 0);
-        char2 = *(indices + i * TransitionIndex::SIZE + 1);
-        *(indices + i * TransitionIndex::SIZE + 0) = char2;
-        *(indices + i * TransitionIndex::SIZE + 1) = char1;
+    	std::swap(*(indices + i * TransitionIndex::SIZE + 0), *(indices + i * TransitionIndex::SIZE + 1));
         // then the uint_32
-        char1 = *(indices + i * TransitionIndex::SIZE + 2);
-        char2 = *(indices + i * TransitionIndex::SIZE + 3);
-        char3 = *(indices + i * TransitionIndex::SIZE + 4);
-        char4 = *(indices + i * TransitionIndex::SIZE + 5);
-        *(indices + i * TransitionIndex::SIZE + 0) = char4;
-        *(indices + i * TransitionIndex::SIZE + 1) = char3;
-        *(indices + i * TransitionIndex::SIZE + 2) = char2;
-        *(indices + i * TransitionIndex::SIZE + 3) = char1;
+    	std::swap(*(indices + i * TransitionIndex::SIZE + 2), *(indices + i * TransitionIndex::SIZE + 5));
+    	std::swap(*(indices + i * TransitionIndex::SIZE + 3), *(indices + i * TransitionIndex::SIZE + 4));
     }
 }
 
@@ -707,40 +719,21 @@ void TransitionTable::read(char ** raw,
     }
 }
 
-void TransitionTable::convert_to_big_endian(void)
+void TransitionTable::convert_to_big_endian()
 {
+	//std::cerr << "TransitionTable::convert_to_big_endian " << size << std::endl;
     // We have a sequence of [ uint_16, uint_16, uint_32, float ] in memory,
     // and we're going to flip endianness of each one.
     for(size_t i = 0; i < size; ++i) {
-        char char1, char2, char3, char4;
-        // first the uint_16
-        char1 = *(transitions + i * TransitionIndex::SIZE + 0);
-        char2 = *(transitions + i * TransitionIndex::SIZE + 1);
-        *(transitions + i * TransitionIndex::SIZE + 0) = char2;
-        *(transitions + i * TransitionIndex::SIZE + 1) = char1;
-        // first the next one
-        char1 = *(transitions + i * TransitionIndex::SIZE + 2);
-        char2 = *(transitions + i * TransitionIndex::SIZE + 3);
-        *(transitions + i * TransitionIndex::SIZE + 3) = char2;
-        *(transitions + i * TransitionIndex::SIZE + 2) = char1;
+        // first the uint_16s
+    	std::swap(*(transitions + i * Transition::SIZE + 0), *(transitions + i * Transition::SIZE + 1));
+    	std::swap(*(transitions + i * Transition::SIZE + 2), *(transitions + i * Transition::SIZE + 3));
         // then the uint_32
-        char1 = *(transitions + i * TransitionIndex::SIZE + 4);
-        char2 = *(transitions + i * TransitionIndex::SIZE + 5);
-        char3 = *(transitions + i * TransitionIndex::SIZE + 6);
-        char4 = *(transitions + i * TransitionIndex::SIZE + 7);
-        *(transitions + i * TransitionIndex::SIZE + 7) = char4;
-        *(transitions + i * TransitionIndex::SIZE + 6) = char3;
-        *(transitions + i * TransitionIndex::SIZE + 5) = char2;
-        *(transitions + i * TransitionIndex::SIZE + 4) = char1;
+    	std::swap(*(transitions + i * Transition::SIZE + 4), *(transitions + i * Transition::SIZE + 7));
+    	std::swap(*(transitions + i * Transition::SIZE + 5), *(transitions + i * Transition::SIZE + 6));
         // then the float
-        char1 = *(transitions + i * TransitionIndex::SIZE + 8);
-        char2 = *(transitions + i * TransitionIndex::SIZE + 9);
-        char3 = *(transitions + i * TransitionIndex::SIZE + 10);
-        char4 = *(transitions + i * TransitionIndex::SIZE + 11);
-        *(transitions + i * TransitionIndex::SIZE + 11) = char4;
-        *(transitions + i * TransitionIndex::SIZE + 10) = char3;
-        *(transitions + i * TransitionIndex::SIZE + 9) = char2;
-        *(transitions + i * TransitionIndex::SIZE + 8) = char1;
+    	std::swap(*(transitions + i * Transition::SIZE + 8), *(transitions + i * Transition::SIZE + 11));
+    	std::swap(*(transitions + i * Transition::SIZE + 9), *(transitions + i * Transition::SIZE + 10));
     }
 }
 
@@ -781,14 +774,14 @@ LetterTrie::~LetterTrie()
          i != letters.end(); ++i)
     {
         if (*i)
-        { 
+        {
             delete *i;
         }
     }
 }
 
 Encoder::Encoder(KeyTable * kt, SymbolNumber number_of_input_symbols):
-    ascii_symbols(UCHAR_MAX,NO_SYMBOL)
+    ascii_symbols(UCHAR_MAX+1,NO_SYMBOL)
 {
     read_input_symbols(kt, number_of_input_symbols);
 }
@@ -826,15 +819,15 @@ TransitionIndex::target() const
     return first_transition_index;
 }
 
-bool 
-TransitionIndex::final(void) const
+bool
+TransitionIndex::final() const
 {
     return input_symbol == NO_SYMBOL &&
         first_transition_index != NO_TABLE_INDEX;
 }
 
 Weight
-TransitionIndex::final_weight(void) const
+TransitionIndex::final_weight() const
 {
     union to_weight
     {
@@ -846,37 +839,37 @@ TransitionIndex::final_weight(void) const
 }
 
 SymbolNumber
-TransitionIndex::get_input(void) const
+TransitionIndex::get_input() const
 {
     return input_symbol;
 }
 
-TransitionTableIndex 
-Transition::target(void) const
+TransitionTableIndex
+Transition::target() const
 {
     return target_index;
 }
 
 SymbolNumber
-Transition::get_output(void) const
+Transition::get_output() const
 {
     return output_symbol;
 }
 
 SymbolNumber
-Transition::get_input(void) const
+Transition::get_input() const
 {
     return input_symbol;
 }
 
 Weight
-Transition::get_weight(void) const
+Transition::get_weight() const
 {
     return transition_weight;
 }
 
 bool
-Transition::final(void) const
+Transition::final() const
 {
     return input_symbol == NO_SYMBOL &&
         output_symbol == NO_SYMBOL &&
@@ -890,7 +883,7 @@ IndexTable::IndexTable(FILE* f,
 {
     read(f, number_of_table_entries);
 }
-    
+
 IndexTable::IndexTable(char ** raw,
                        TransitionTableIndex number_of_table_entries):
     indices(NULL),
@@ -899,7 +892,7 @@ IndexTable::IndexTable(char ** raw,
     read(raw, number_of_table_entries);
 }
 
-IndexTable::~IndexTable(void)
+IndexTable::~IndexTable()
 {
     if (indices) {
         free(indices);
@@ -921,7 +914,7 @@ TransitionTableIndex
 IndexTable::target(TransitionTableIndex i) const
 {
     if (i < size) {
-        return hfst_deref((TransitionTableIndex *) 
+        return hfst_deref((TransitionTableIndex *)
                           (indices + TransitionIndex::SIZE * i +
                            sizeof(SymbolNumber)));
     } else {
@@ -954,7 +947,7 @@ TransitionTable::TransitionTable(FILE * f,
 {
     read(f, transition_count);
 }
-  
+
 TransitionTable::TransitionTable(char ** raw,
                                  TransitionTableIndex transition_count):
     transitions(NULL),
@@ -963,7 +956,7 @@ TransitionTable::TransitionTable(char ** raw,
     read(raw, transition_count);
 }
 
-TransitionTable::~TransitionTable(void)
+TransitionTable::~TransitionTable()
 {
     if (transitions) {
         free(transitions);
