@@ -1,4 +1,12 @@
-e9cc1da (HEAD -> master, origin/master, origin/HEAD) Prevent segfaults from no-errormodel.sh test This also makes the test succeed rather than XLFAIL, so removed it from XFAIL_TESTS (why not?)
+9562377 (HEAD -> master, origin/master, origin/HEAD) Fixes for big endian conversions; Make use of AC_C_BIGENDIAN and WORDS_BIGENDIAN; UCHAR_MAX should be +1 to allow hitting index 255
+bf79d25 Add returns
+8573403 Merge branch 'big_endian_compatibility_suggestion' In hopes that this approach to fixing build problems on the problematic architectures will get tested for Debian builds. This is experimental, but at least shouldn't break anything - feel free to revert if unhelpful.
+b756b2e Killed an error. Don't know whether it was the correct solution - please review.
+3ca7756 max version for tinyxml
+662f79c (origin/big_endian_compatibility_suggestion) Forgot to actually assign header length to a variable when reading raw bytes
+abed65f A suggestion for big-endian compatibility
+43f5dc6 (tag: v0.4.2) Release 0.4.2.
+e9cc1da Prevent segfaults from no-errormodel.sh test This also makes the test succeed rather than XLFAIL, so removed it from XFAIL_TESTS (why not?)
 6d359c0 Remove unused $(HFST_FLAGS) variable that may be leading to some test failures
 b31fec1 markdown
 9fa49a2 not supporting default autostuff like promised...

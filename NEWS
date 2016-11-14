@@ -2,7 +2,13 @@ NEWS for hfst-ospell
 ====================
 
 This file contains all noteworthy changes in HFST-ospell development between
-releases.  For full listing of changes see ChangeLog.
+releases. For full listing of changes see ChangeLog.
+
+Noteworthy changes in 0.4.3
+---------------------------
+
+* fixes for big endian conversions
+* use max version for tinyxml
 
 Noteworthy changes in 0.4.2
 ---------------------------
