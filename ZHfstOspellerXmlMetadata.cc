@@ -39,7 +39,7 @@ using std::map;
 #include "ZHfstOspeller.h"
 #include "ZHfstOspellerXmlMetadata.h"
 
-namespace hfst_ol 
+namespace hfst_ol
   {
 
 ZHfstOspellerXmlMetadata::ZHfstOspellerXmlMetadata()
@@ -90,7 +90,7 @@ ZHfstOspellerXmlMetadata::verify_hfstspeller(xmlpp::Node* rootNode)
                                         "root from XML file");
       }
     // check versions
-    const xmlpp::Attribute* hfstversion = 
+    const xmlpp::Attribute* hfstversion =
         rootElement->get_attribute("hfstversion");
     if (NULL == hfstversion)
       {
@@ -204,7 +204,7 @@ ZHfstOspellerXmlMetadata::parse_title(xmlpp::Node* titleNode)
 void
 ZHfstOspellerXmlMetadata::parse_description(xmlpp::Node* descriptionNode)
   {
-    xmlpp::Element* descriptionElement = 
+    xmlpp::Element* descriptionElement =
         dynamic_cast<xmlpp::Element*>(descriptionNode);
     const xmlpp::Attribute* lang = descriptionElement->get_attribute("lang");
     if (NULL == descriptionElement->get_child_text())
@@ -238,7 +238,7 @@ ZHfstOspellerXmlMetadata::parse_version(xmlpp::Node* versionNode)
 void
 ZHfstOspellerXmlMetadata::parse_date(xmlpp::Node* dateNode)
   {
-    xmlpp::Element* dateElement = 
+    xmlpp::Element* dateElement =
         dynamic_cast<xmlpp::Element*>(dateNode);
     info_.date_ = dateElement->get_child_text()->get_content();
   }
@@ -246,7 +246,7 @@ ZHfstOspellerXmlMetadata::parse_date(xmlpp::Node* dateNode)
 void
 ZHfstOspellerXmlMetadata::parse_producer(xmlpp::Node* producerNode)
   {
-    xmlpp::Element* producerElement = 
+    xmlpp::Element* producerElement =
         dynamic_cast<xmlpp::Element*>(producerNode);
     info_.producer_ = producerElement->get_child_text()->get_content();
   }
@@ -271,7 +271,7 @@ ZHfstOspellerXmlMetadata::parse_contact(xmlpp::Node* contactNode)
 void
 ZHfstOspellerXmlMetadata::parse_acceptor(xmlpp::Node* acceptorNode)
   {
-    xmlpp::Element* acceptorElement = 
+    xmlpp::Element* acceptorElement =
         dynamic_cast<xmlpp::Element*>(acceptorNode);
     xmlpp::Attribute* xid = acceptorElement->get_attribute("id");
     if (xid == NULL)
@@ -286,7 +286,7 @@ ZHfstOspellerXmlMetadata::parse_acceptor(xmlpp::Node* acceptorNode)
     char* descr = get_automaton_descr_from_id(xidValue.c_str());
     acceptor_[descr].descr_ = descr;
     acceptor_[descr].id_ = xidValue;
-    const xmlpp::Attribute* trtype = 
+    const xmlpp::Attribute* trtype =
         acceptorElement->get_attribute("transtype");
     if (trtype != NULL)
       {
@@ -325,7 +325,7 @@ ZHfstOspellerXmlMetadata::parse_acceptor(xmlpp::Node* acceptorNode)
   }
 
 void
-ZHfstOspellerXmlMetadata::parse_title(xmlpp::Node* titleNode, 
+ZHfstOspellerXmlMetadata::parse_title(xmlpp::Node* titleNode,
                                       const string& descr)
   {
     xmlpp::Element* titleElement = dynamic_cast<xmlpp::Element*>(titleNode);
@@ -344,7 +344,7 @@ void
 ZHfstOspellerXmlMetadata::parse_description(xmlpp::Node* descriptionNode,
                                             const string& descr)
   {
-    xmlpp::Element* descriptionElement = 
+    xmlpp::Element* descriptionElement =
         dynamic_cast<xmlpp::Element*>(descriptionNode);
     const xmlpp::Attribute* lang = descriptionElement->get_attribute("lang");
     if (lang != NULL)
@@ -360,7 +360,7 @@ ZHfstOspellerXmlMetadata::parse_description(xmlpp::Node* descriptionNode,
 void
 ZHfstOspellerXmlMetadata::parse_errmodel(xmlpp::Node* errmodelNode)
   {
-    xmlpp::Element* errmodelElement = 
+    xmlpp::Element* errmodelElement =
         dynamic_cast<xmlpp::Element*>(errmodelNode);
     xmlpp::Attribute* xid = errmodelElement->get_attribute("id");
     if (xid == NULL)
@@ -416,7 +416,7 @@ ZHfstOspellerXmlMetadata::parse_errmodel(xmlpp::Node* errmodelNode)
   }
 
 void
-ZHfstOspellerXmlMetadata::parse_title(xmlpp::Node* titleNode, 
+ZHfstOspellerXmlMetadata::parse_title(xmlpp::Node* titleNode,
                                       size_t errm_count)
   {
     xmlpp::Element* titleElement = dynamic_cast<xmlpp::Element*>(titleNode);
@@ -435,7 +435,7 @@ void
 ZHfstOspellerXmlMetadata::parse_description(xmlpp::Node* descriptionNode,
                                             size_t errm_count)
   {
-    xmlpp::Element* descriptionElement = 
+    xmlpp::Element* descriptionElement =
         dynamic_cast<xmlpp::Element*>(descriptionNode);
     const xmlpp::Attribute* lang = descriptionElement->get_attribute("lang");
     if (lang != NULL)
@@ -485,7 +485,7 @@ ZHfstOspellerXmlMetadata::parse_xml(const xmlpp::Document* doc)
         throw ZHfstMetaDataParsingError("No root node in index XML");
       }
     verify_hfstspeller(rootNode);
-    // parse 
+    // parse
     xmlpp::Node::NodeList nodes = rootNode->get_children();
     for (xmlpp::Node::NodeList::iterator node = nodes.begin();
          node != nodes.end();
@@ -692,7 +692,7 @@ ZHfstOspellerXmlMetadata::parse_description(const tinyxml2::XMLElement& descript
       {
         info_.description_[info_.locale_] = descriptionNode.GetText();
       }
-    
+
   }
 
 void
@@ -773,7 +773,7 @@ ZHfstOspellerXmlMetadata::parse_acceptor(const tinyxml2::XMLElement& acceptorNod
       }
     free(descr);
   }
-                 
+
 void
 ZHfstOspellerXmlMetadata::parse_title(const tinyxml2::XMLElement& titleNode,
                                       const std::string& accName)
@@ -785,11 +785,11 @@ ZHfstOspellerXmlMetadata::parse_title(const tinyxml2::XMLElement& titleNode,
       }
     else
       {
-        acceptor_[accName].title_[info_.locale_] = 
+        acceptor_[accName].title_[info_.locale_] =
           titleNode.GetText();
       }
   }
-        
+
 
 void
 ZHfstOspellerXmlMetadata::parse_description(const tinyxml2::XMLElement& descriptionNode,
@@ -802,7 +802,7 @@ ZHfstOspellerXmlMetadata::parse_description(const tinyxml2::XMLElement& descript
       }
     else
       {
-        acceptor_[accName].description_[info_.locale_] = 
+        acceptor_[accName].description_[info_.locale_] =
           descriptionNode.GetText();
       }
   }
@@ -880,7 +880,7 @@ ZHfstOspellerXmlMetadata::parse_description(const tinyxml2::XMLElement& descript
       }
     else
       {
-        errmodel_[errm_count].description_[info_.locale_] = 
+        errmodel_[errm_count].description_[info_.locale_] =
           descriptionNode.GetText();
       }
   }
@@ -926,7 +926,6 @@ ZHfstOspellerXmlMetadata::read_xml(const string& filename)
     this->parse_xml(doc);
   }
 #else
-#error configure found no usable XML library
 void
     ZHfstOspellerXmlMetadata::read_xml(const char*, size_t)
       {}
@@ -1014,7 +1013,7 @@ ZHfstOspellerXmlMetadata::debug_dump() const
             retval.append("model: " + *model + "\n");
           }
       }
-    
+
     return retval;
   }
 
