@@ -16,6 +16,7 @@
 #ifndef HFST_OSPELL_OSPELL_H_
 #define HFST_OSPELL_OSPELL_H_ 1
 
+#include "stdafx.h"
 #include <string>
 #include <deque>
 #include <queue>
@@ -85,7 +86,15 @@ public:
     
     //!
     //! compare two string weight pairs for weights
-    bool operator() (StringWeightPair lhs, StringWeightPair rhs);
+    bool operator() (const StringWeightPair& lhs, const StringWeightPair& rhs) const
+    { // return true when we want rhs to appear before lhs
+        if (reverse) {
+            return (lhs.second < rhs.second);
+        }
+        else {
+            return (lhs.second > rhs.second);
+        }
+    }
 };
 
 //! @brief comparison for complex analysis queues
@@ -104,7 +113,15 @@ public:
     
     //!
     //! compare two analysis corrections for weights
-    bool operator() (StringPairWeightPair lhs, StringPairWeightPair rhs);
+    bool operator() (const StringPairWeightPair& lhs, const StringPairWeightPair& rhs) const
+    { // return true when we want rhs to appear before lhs
+        if (reverse) {
+            return (lhs.second < rhs.second);
+        }
+        else {
+            return (lhs.second > rhs.second);
+        }
+    }
 };
 
 typedef std::priority_queue<StringWeightPair,

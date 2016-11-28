@@ -47,8 +47,6 @@
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
 
-#include "ol-exceptions.h"
-#include "ospell.h"
 #include "ZHfstOspeller.h"
 
 using hfst_ol::ZHfstOspeller;

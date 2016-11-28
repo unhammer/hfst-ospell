@@ -438,35 +438,6 @@ ZHfstOspeller::metadata_dump() const
     return metadata_.debug_dump();
 
   }
-
-ZHfstException::ZHfstException() :
-    what_("unknown")
-    {}
-ZHfstException::ZHfstException(const std::string& message) :
-    what_(message)
-      {}
-
-
-const char* 
-ZHfstException::what()
-  {
-    return what_.c_str();
-  }
-
-
-ZHfstMetaDataParsingError::ZHfstMetaDataParsingError(const std::string& message):
-    ZHfstException(message)
-  {}
-ZHfstXmlParsingError::ZHfstXmlParsingError(const std::string& message):
-    ZHfstException(message)
-  {}
-ZHfstZipReadingError::ZHfstZipReadingError(const std::string& message):
-    ZHfstException(message)
-  {}
-ZHfstTemporaryWritingError::ZHfstTemporaryWritingError(const std::string& message):
-    ZHfstException(message)
-    {}
- 
 } // namespace hfst_ol
 
 

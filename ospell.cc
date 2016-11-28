@@ -37,27 +37,6 @@ int nByte_utf8(unsigned char c)
     }
 }
 
-bool
-StringWeightComparison::operator()(StringWeightPair lhs, StringWeightPair rhs)
-{ // return true when we want rhs to appear before lhs
-    if (reverse) {
-        return (lhs.second < rhs.second);
-    } else {
-        return (lhs.second > rhs.second);
-    }
-}
-
-bool
-StringPairWeightComparison::operator()(StringPairWeightPair lhs,
-                                       StringPairWeightPair rhs)
-{ // return true when we want rhs to appear before lhs
-    if (reverse) {
-        return (lhs.second < rhs.second);
-    } else {
-        return (lhs.second > rhs.second);
-    }
-}
-
 void WeightQueue::push(Weight w)
 {
     for (WeightQueue::iterator it = begin(); it != end(); ++it) {
@@ -238,7 +217,7 @@ Speller::Speller(Transducer* mutator_ptr, Transducer* lexicon_ptr):
 SymbolNumber
 Speller::get_state_size()
 {
-    return lexicon->get_state_size();
+    return static_cast<SymbolNumber>(lexicon->get_state_size());
 }
 
 
@@ -688,7 +667,7 @@ bool Transducer::has_non_epsilons_or_flags(const TransitionTableIndex i)
         return((this_input != 0 && this_input != NO_SYMBOL) &&
                !is_flag(this_input));
     } else {
-        SymbolNumber max_symbol = get_key_table()->size();
+        SymbolNumber max_symbol = static_cast<SymbolNumber>(get_key_table()->size());
         for (SymbolNumber sym = 1; sym < max_symbol; ++sym) {
             if (indices.input_symbol(i + sym) == sym) {
                 return true;
@@ -763,6 +742,7 @@ Transducer::is_weighted(void)
 
 AnalysisQueue Speller::analyse(char * line, int nbest)
 {
+    (void)nbest;
     mode = Lookup;
     if (!init_input(line)) {
         return AnalysisQueue();
@@ -1097,7 +1077,7 @@ void Speller::build_alphabet_translator(void)
             // A symbol in the error source isn't present in the
             // lexicon, so we add it.
             std::string sym = from_keys->operator[](i);
-            SymbolNumber lexicon_key = lexicon->get_key_table()->size();
+            SymbolNumber lexicon_key = static_cast<SymbolNumber>(lexicon->get_key_table()->size());
             lexicon->get_encoder()->read_input_symbol(sym, lexicon_key);
             lexicon->get_alphabet()->add_symbol(sym);
             alphabet_translator.push_back(lexicon_key);

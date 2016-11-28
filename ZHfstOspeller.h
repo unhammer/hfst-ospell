@@ -28,6 +28,8 @@
 #ifndef HFST_OSPELL_ZHFSTOSPELLER_H_
 #define HFST_OSPELL_ZHFSTOSPELLER_H_
 
+#include "stdafx.h"
+
 #if HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -49,30 +51,30 @@ namespace hfst_ol
         public:
             //! @brief create speller with default values for undefined 
             //!        language.
-            ZHfstOspeller();
+            OSPELL_API ZHfstOspeller();
             //! @brief destroy all automata used by the speller.
-            ~ZHfstOspeller();
+            OSPELL_API ~ZHfstOspeller();
 
             //! @brief assign a speller-suggestor circumventing the ZHFST format
-            void inject_speller(Speller * s);
+            OSPELL_API void inject_speller(Speller * s);
             //! @brief set upper limit to priority queue when performing
             //         suggestions or analyses.
-            void set_queue_limit(unsigned long limit);
+            OSPELL_API void set_queue_limit(unsigned long limit);
             //! @brief set upper limit for weights
-            void set_weight_limit(Weight limit);
+            OSPELL_API void set_weight_limit(Weight limit);
             //! @brief set search beam
-            void set_beam(Weight beam);
+            OSPELL_API void set_beam(Weight beam);
             //! @brief set time cutoff for correcting
-            void set_time_cutoff(float time_cutoff);
+            OSPELL_API void set_time_cutoff(float time_cutoff);
             //! @brief construct speller from named file containing valid
             //!        zhfst archive.
-            void read_zhfst(const std::string& filename);
+            OSPELL_API void read_zhfst(const std::string& filename);
 
             //! @brief  check if the given word is spelled correctly
-            bool spell(const std::string& wordform);
+            OSPELL_API bool spell(const std::string& wordform);
             //! @brief construct an ordered set of corrections for misspelled
             //!        word form.
-            CorrectionQueue suggest(const std::string& wordform);
+            OSPELL_API CorrectionQueue suggest(const std::string& wordform);
             //! @brief analyse word form morphologically
             //! @param wordform   the string to analyse
             //! @param ask_sugger whether to use the spelling correction model
@@ -136,15 +138,15 @@ namespace hfst_ol
     class ZHfstException
       {
         public:
-            ZHfstException();
+            ZHfstException() : what_("unknown") {}
             //! @brief construct error with human readable message.
             //!
             //! the message will be displayed when recovering or dying from
             //! exception
-            explicit ZHfstException(const std::string& message);
+            explicit ZHfstException(const std::string& message) : what_(message) {}
             //!
             //! format error as user-readable message
-            const char* what();
+            const char* what() { return what_.c_str(); }
         private:
             std::string what_;
       };
@@ -155,9 +157,7 @@ namespace hfst_ol
     class ZHfstMetaDataParsingError : public ZHfstException
     {
         public:
-            explicit ZHfstMetaDataParsingError(const std::string& message);
-        private:
-            std::string what_;
+            explicit ZHfstMetaDataParsingError(const std::string& message) : ZHfstException(message) {}
     };
 
     //! @brief Exception for XML parser errors.
@@ -168,9 +168,7 @@ namespace hfst_ol
     class ZHfstXmlParsingError : public ZHfstException
     {
       public:
-          explicit ZHfstXmlParsingError(const std::string& message);
-      private:
-          std::string what_;
+          explicit ZHfstXmlParsingError(const std::string& message) : ZHfstException(message) {}
     };
 
     //! @brief Generic error while reading zip file.
@@ -180,9 +178,7 @@ namespace hfst_ol
     class ZHfstZipReadingError : public ZHfstException
     {
       public:
-          explicit ZHfstZipReadingError(const std::string& message);
-      private:
-          std::string what_;
+          explicit ZHfstZipReadingError(const std::string& message) : ZHfstException(message) {}
     };
 
     //! @brief Error when writing to temporary location.
@@ -192,9 +188,7 @@ namespace hfst_ol
     class ZHfstTemporaryWritingError : public ZHfstException
     {
       public:
-          explicit ZHfstTemporaryWritingError(const std::string& message);
-      private:
-          std::string what_;
+          explicit ZHfstTemporaryWritingError(const std::string& message) : ZHfstException(message) {}
     };
 
   } // namespace hfst_ol

@@ -1,6 +1,7 @@
 #ifndef _OL_EXCEPTIONS_H
 #define _OL_EXCEPTIONS_H
 
+#include "stdafx.h"
 #include <string>
 #include <sstream>
 
@@ -23,7 +24,7 @@ struct OspellException
    
 //!
 //! construct exception with name, file and location
-OspellException(const std::string &name,const std::string &file,size_t line):
+    OspellException(const std::string &name,const std::string &file,size_t line):
     name(name),
     file(file),
     line(line)
