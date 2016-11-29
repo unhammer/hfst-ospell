@@ -1,7 +1,7 @@
 #ifndef _OL_EXCEPTIONS_H
 #define _OL_EXCEPTIONS_H
 
-#include "stdafx.h"
+#include "hfstol-stdafx.h"
 #include <string>
 #include <sstream>
 

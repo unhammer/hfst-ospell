@@ -28,7 +28,7 @@
 #ifndef HFST_OSPELL_ZHFSTOSPELLER_H_
 #define HFST_OSPELL_ZHFSTOSPELLER_H_
 
-#include "stdafx.h"
+#include "hfstol-stdafx.h"
 
 #if HAVE_CONFIG_H
 #  include <config.h>

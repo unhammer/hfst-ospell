@@ -16,7 +16,7 @@
 #ifndef HFST_OSPELL_ZHFSTOSPELLERXMLMETADATA_H_
 #define HFST_OSPELL_ZHFSTOSPELLERXMLMETADATA_H_ 1
 
-#include "stdafx.h"
+#include "hfstol-stdafx.h"
 
 #if HAVE_CONFIG_H
 #  include <config.h>

@@ -16,7 +16,7 @@
 #ifndef HFST_OSPELL_OSPELL_H_
 #define HFST_OSPELL_OSPELL_H_ 1
 
-#include "stdafx.h"
+#include "hfstol-stdafx.h"
 #include <string>
 #include <deque>
 #include <queue>

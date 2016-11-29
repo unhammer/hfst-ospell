@@ -110,7 +110,8 @@ endif # EXTRA_DEMOS
 
 # install headers for library in hfst's includedir
 include_HEADERS=hfst-ol.h ospell.h ol-exceptions.h \
-				ZHfstOspeller.h ZHfstOspellerXmlMetadata.h
+				ZHfstOspeller.h ZHfstOspellerXmlMetadata.h \
+				hfstol-stdafx.h
 
 # pkgconfig
 pkgconfigdir=$(libdir)/pkgconfig
