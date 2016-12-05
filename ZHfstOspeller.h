@@ -34,13 +34,14 @@
 #  include <config.h>
 #endif
 
+#include <stdexcept>
 #include <map>
 
 #include "ospell.h"
 #include "hfst-ol.h"
 #include "ZHfstOspellerXmlMetadata.h"
 
-namespace hfst_ol 
+namespace hfst_ol
   {
     //! @brief ZHfstOspeller class holds one speller contained in one
     //!        zhfst file.
@@ -49,7 +50,7 @@ namespace hfst_ol
     class ZHfstOspeller
       {
         public:
-            //! @brief create speller with default values for undefined 
+            //! @brief create speller with default values for undefined
             //!        language.
             OSPELL_API ZHfstOspeller();
             //! @brief destroy all automata used by the speller.
@@ -79,7 +80,7 @@ namespace hfst_ol
             //! @param wordform   the string to analyse
             //! @param ask_sugger whether to use the spelling correction model
             //                    instead of the detection model
-            AnalysisQueue analyse(const std::string& wordform, 
+            AnalysisQueue analyse(const std::string& wordform,
                                   bool ask_sugger = false);
             //! @brief construct an ordered set of corrections with analyses
             AnalysisCorrectionQueue suggest_analyses(const std::string&
@@ -135,20 +136,15 @@ namespace hfst_ol
 
     //! Contains a human-readable error message that can be displayed to
     //! end-user as additional info when either solving exception or exiting.
-    class ZHfstException
+    class ZHfstException : public std::runtime_error
       {
         public:
-            ZHfstException() : what_("unknown") {}
+            ZHfstException() : std::runtime_error("unknown") {}
             //! @brief construct error with human readable message.
             //!
             //! the message will be displayed when recovering or dying from
             //! exception
-            explicit ZHfstException(const std::string& message) : what_(message) {}
-            //!
-            //! format error as user-readable message
-            const char* what() { return what_.c_str(); }
-        private:
-            std::string what_;
+            explicit ZHfstException(const std::string& message) : std::runtime_error(message) {}
       };
 
     //! @brief Generic error in metadata parsing.
