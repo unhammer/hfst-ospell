@@ -49,6 +49,10 @@ extract_to_mem(archive* ar, archive_entry* entry, size_t* n)
     size_t full_length = 0;
     const struct stat* st = archive_entry_stat(entry);
     size_t buffsize = st->st_size;
+    if (buffsize == 0) {
+        std::cerr << archive_error_string(ar) << std::endl;
+        throw ZHfstZipReadingError("Reading archive resulted in zero length entry");
+    }
     char * buff = new char[buffsize];
     for (;;)
       {
@@ -68,13 +72,17 @@ extract_to_mem(archive* ar, archive_entry* entry, size_t* n)
         else if (curr < 0)
           {
             throw ZHfstZipReadingError("Archive broken...");
-          } 
+          }
         else
           {
             full_length += curr;
           }
       }
     *n = full_length;
+    if (*n == 0) {
+        std::cerr << archive_error_string(ar) << std::endl;
+        throw ZHfstZipReadingError("Reading archive resulted in zero length");
+    }
     return buff;
   }
 #endif
@@ -264,7 +272,7 @@ ZHfstOspeller::read_zhfst(const string& filename)
       {
         throw ZHfstZipReadingError("Archive not OK");
       }
-    for (int rr = archive_read_next_header(ar, &entry); 
+    for (int rr = archive_read_next_header(ar, &entry);
          rr != ARCHIVE_EOF;
          rr = archive_read_next_header(ar, &entry))
       {
@@ -280,6 +288,12 @@ ZHfstOspeller::read_zhfst(const string& filename)
 #elif ZHFST_EXTRACT_TO_MEM
             size_t total_length = 0;
             char* full_data = extract_to_mem(ar, entry, &total_length);
+            if (total_length == 0) {
+                throw ZHfstZipReadingError("Reading archive resulted in zero length data");
+            }
+            if (full_data == nullptr) {
+                throw ZHfstZipReadingError("Reading archive resulted in null data");
+            }
 #endif
             char* p = filename;
             p += strlen("acceptor.");
@@ -400,7 +414,7 @@ ZHfstOspeller::read_zhfst(const string& filename)
         can_spell_ = true;
         can_correct_ = true;
       }
-    else if ((acceptors_.size() > 0) && 
+    else if ((acceptors_.size() > 0) &&
              (acceptors_.find("default") != acceptors_.end()))
       {
         current_speller_ = new Speller(0, acceptors_["default"]);
