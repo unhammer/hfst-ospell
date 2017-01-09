@@ -73,7 +73,6 @@ bool print_version(void)
     std::cerr <<
     "\n" <<
     PACKAGE_STRING << std::endl <<
-    __DATE__ << " " __TIME__ << std::endl <<
     "copyright (C) 2009 - 2011 University of Helsinki\n";
     return true;
 }
