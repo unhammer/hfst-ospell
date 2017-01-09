@@ -76,10 +76,10 @@ AC_ARG_WITH([extract],
                            [extract zhfst archives to tmpdir or mem @<:@default=mem@:>@])],
             [with_extract=$withval], [with_extract=mem])
 AS_IF([test "x$with_extract" = xmem], [AC_DEFINE([ZHFST_EXTRACT_TO_MEM], [1],
-                        [Define to extract zhfst archives to char buffer])],
+                        [Define to extract zhfst archives to char buffer first])],
           [AS_IF([test "x$with_extract" = xtmpdir],
-                 [AC_DEFINE([ZHFST_EXTRACT_TO_TMPDIR], [1],
-                            [Define to extract zhfst to tmp dir])],
+                 [AC_DEFINE([ZHFST_EXTRACT_TO_MEM], [0],
+                            [Define to extract zhfst to tmp dir first])],
           [AC_MSG_ERROR([Use with-extract to mem or tmpdir])])])
 
 # Checks for programs

@@ -41,11 +41,7 @@ namespace hfst_ol
   {
 
 #if HAVE_LIBARCHIVE
-#if ZHFST_EXTRACT_TO_MEM
-static
-char*
-extract_to_mem(archive* ar, archive_entry* entry, size_t* n)
-  {
+inline std::string extract_to_mem(archive* ar, archive_entry* entry) {
     size_t full_length = 0;
     const struct stat* st = archive_entry_stat(entry);
     size_t buffsize = st->st_size;
@@ -53,56 +49,60 @@ extract_to_mem(archive* ar, archive_entry* entry, size_t* n)
         std::cerr << archive_error_string(ar) << std::endl;
         throw ZHfstZipReadingError("Reading archive resulted in zero length entry");
     }
-    char * buff = new char[buffsize];
-    for (;;)
-      {
-        ssize_t curr = archive_read_data(ar, buff + full_length, buffsize - full_length);
-        if (0 == curr)
-          {
+
+    std::string buff(buffsize, 0);
+    for (;;) {
+        ssize_t curr = archive_read_data(ar, &buff[0] + full_length, buffsize - full_length);
+        if (0 == curr) {
             break;
-          }
-        else if (ARCHIVE_RETRY == curr)
-          {
+        }
+        else if (ARCHIVE_RETRY == curr) {
             continue;
-          }
-        else if (ARCHIVE_FAILED == curr)
-          {
+        }
+        else if (ARCHIVE_FAILED == curr) {
             throw ZHfstZipReadingError("Archive broken (ARCHIVE_FAILED)");
-          }
-        else if (curr < 0)
-          {
+        }
+        else if (curr < 0) {
             throw ZHfstZipReadingError("Archive broken...");
-          }
-        else
-          {
+        }
+        else {
             full_length += curr;
-          }
-      }
-    *n = full_length;
-    if (*n == 0) {
+        }
+    }
+
+    if (full_length == 0) {
         std::cerr << archive_error_string(ar) << std::endl;
         throw ZHfstZipReadingError("Reading archive resulted in zero length");
     }
-    return buff;
-  }
-#endif
 
-#if ZHFST_EXTRACT_TO_TMPDIR
-static
-char*
-extract_to_tmp_dir(archive* ar)
-  {
+    return buff;
+}
+
+inline Transducer* transducer_to_mem(archive* ar, archive_entry* entry) {
+    std::string buff = extract_to_mem(ar, entry);
+    Transducer *trans = new Transducer(&buff[0]);
+    return trans;
+}
+
+inline char* extract_to_tmp_dir(archive* ar) {
     char* rv = strdup("/tmp/zhfstospellXXXXXXXX");
     int temp_fd = mkstemp(rv);
     int rr = archive_read_data_into_fd(ar, temp_fd);
-    if ((rr != ARCHIVE_EOF) && (rr != ARCHIVE_OK))
-      {
+    if ((rr != ARCHIVE_EOF) && (rr != ARCHIVE_OK)) {
         throw ZHfstZipReadingError("Archive not EOF'd or OK'd");
-      }
+    }
     close(temp_fd);
     return rv;
-  }
-#endif
+}
+
+inline Transducer* transducer_to_tmp_dir(archive* ar) {
+    char *filename = extract_to_tmp_dir(ar);
+    FILE* f = fopen(filename, "rb");
+    if (f == nullptr) {
+        throw ZHfstTemporaryWritingError("reading acceptor back from temp file");
+    }
+    return new Transducer(f);
+}
 
 #endif // HAVE_LIBARCHIVE
 
@@ -281,20 +281,34 @@ ZHfstOspeller::read_zhfst(const string& filename)
             throw ZHfstZipReadingError("Archive not OK");
           }
         char* filename = strdup(archive_entry_pathname(entry));
-        if (strncmp(filename, "acceptor.", strlen("acceptor.")) == 0)
-          {
-#if ZHFST_EXTRACT_TO_TMPDIR
-            char* temporary = extract_to_tmp_dir(ar);
-#elif ZHFST_EXTRACT_TO_MEM
-            size_t total_length = 0;
-            char* full_data = extract_to_mem(ar, entry, &total_length);
-            if (total_length == 0) {
-                throw ZHfstZipReadingError("Reading archive resulted in zero length data");
+        if (strncmp(filename, "acceptor.", strlen("acceptor.")) == 0) {
+            Transducer* trans = nullptr;
+
+#if ZHFST_EXTRACT_TO_MEM == 1
+            // Try to memory first...
+            try {
+                trans = transducer_to_mem(ar, entry);
             }
-            if (full_data == nullptr) {
-                throw ZHfstZipReadingError("Reading archive resulted in null data");
+            catch (...) {
+                // If that failed, try to /tmp
+                //std::cerr << "Failed to memory - falling back to /tmp" << std::endl;
+                trans = transducer_to_tmp_dir(ar);
+            }
+#else
+            // Try to /tmp first...
+            try {
+                trans = transducer_to_tmp_dir(ar);
+            }
+            catch (...) {
+                // If that failed, try to memory
+                //std::cerr << "Failed to /tmp - falling back to memory" << std::endl;
+                trans = transducer_to_mem(ar, entry);
             }
 #endif
+            if (trans == nullptr) {
+                throw ZHfstZipReadingError("Failed to extract acceptor");
+            }
+
             char* p = filename;
             p += strlen("acceptor.");
             size_t descr_len = 0;
@@ -309,30 +323,39 @@ ZHfstOspeller::read_zhfst(const string& filename)
                       descr_len++;
                     }
               }
+
             char* descr = hfst_strndup(p, descr_len);
-#if ZHFST_EXTRACT_TO_TMPDIR
-            FILE* f = fopen(temporary, "r");
-            if (f == NULL)
-              {
-                  throw ZHfstTemporaryWritingError("reading acceptor back "
-                                                   "from temp file");
-              }
-            Transducer* trans = new Transducer(f);
-#elif ZHFST_EXTRACT_TO_MEM
-            Transducer* trans = new Transducer(full_data);
-            delete[] full_data;
-#endif
             acceptors_[descr] = trans;
             free(descr);
           }
-        else if (strncmp(filename, "errmodel.", strlen("errmodel.")) == 0)
-          {
-#if ZHFST_EXTRACT_TO_TMPDIR
-            char* temporary = extract_to_tmp_dir(ar);
-#elif ZHFST_EXTRACT_TO_MEM
-            size_t total_length = 0;
-            char* full_data = extract_to_mem(ar, entry, &total_length);
+        else if (strncmp(filename, "errmodel.", strlen("errmodel.")) == 0) {
+            Transducer* trans = nullptr;
+
+#if ZHFST_EXTRACT_TO_MEM == 1
+            // Try to memory first...
+            try {
+                trans = transducer_to_mem(ar, entry);
+            }
+            catch (...) {
+                // If that failed, try to /tmp
+                //std::cerr << "Failed to memory - falling back to /tmp" << std::endl;
+                trans = transducer_to_tmp_dir(ar);
+            }
+#else
+            // Try to /tmp first...
+            try {
+                trans = transducer_to_tmp_dir(ar);
+            }
+            catch (...) {
+                // If that failed, try to memory
+                //std::cerr << "Failed to /tmp - falling back to memory" << std::endl;
+                trans = transducer_to_mem(ar, entry);
+            }
 #endif
+            if (trans == nullptr) {
+                throw ZHfstZipReadingError("Failed to extract error model");
+            }
+
             const char* p = filename;
             p += strlen("errmodel.");
             size_t descr_len = 0;
@@ -347,34 +370,21 @@ ZHfstOspeller::read_zhfst(const string& filename)
                     descr_len++;
                   }
               }
+
             char* descr = hfst_strndup(p, descr_len);
-#if ZHFST_EXTRACT_TO_TMPDIR
-            FILE* f = fopen(temporary, "r");
-            if (NULL == f)
-              {
-                throw ZHfstTemporaryWritingError("reading errmodel back "
-                                                 "from temp file");
-              }
-            Transducer* trans = new Transducer(f);
-#elif ZHFST_EXTRACT_TO_MEM
-            Transducer* trans = new Transducer(full_data);
-            delete[] full_data;
-#endif
             errmodels_[descr] = trans;
             free(descr);
           } // if acceptor or errmodel
-        else if (strcmp(filename, "index.xml") == 0)
-          {
-#if ZHFST_EXTRACT_TO_TMPDIR
-            char* temporary = extract_to_tmp_dir(ar);
-            metadata_.read_xml(temporary);
-#elif ZHFST_EXTRACT_TO_MEM
-            size_t xml_len = 0;
-            char* full_data = extract_to_mem(ar, entry, &xml_len);
-            metadata_.read_xml(full_data, xml_len);
-            delete[] full_data;
-#endif
-
+        else if (strcmp(filename, "index.xml") == 0) {
+            // Always try to memory first, as index.xml is tiny
+            try {
+                std::string full_data = extract_to_mem(ar, entry);
+                metadata_.read_xml(&full_data[0], full_data.size());
+            }
+            catch (...) {
+                char* temporary = extract_to_tmp_dir(ar);
+                metadata_.read_xml(temporary);
+            }
           }
         else
           {
@@ -453,5 +463,3 @@ ZHfstOspeller::metadata_dump() const
 
   }
 } // namespace hfst_ol
-
-
