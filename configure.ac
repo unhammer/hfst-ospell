@@ -91,11 +91,6 @@ LT_INIT
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PATH_PROG([HFST_TXT2FST], [hfst-txt2fst], [false])
-AC_PATH_PROG([HFST_FST2FST], [hfst-fst2fst], [false])
-AC_PATH_PROG([ZIP], [zip], [false])
-AM_CONDITIONAL([CAN_TEST],
-               [test x$HFST_TXT2FST != xfalse -a x$HFST_FST2FST != xfalse -a x$ZIP != xfalse])
 
 # Checks for libraries
 AS_IF([test x$enable_zhfst != xno],
@@ -155,7 +150,7 @@ AX_CHECK_COMPILE_FLAG([-std=c++17], [CXXFLAGS="$CXXFLAGS -std=c++17"], [
   AX_CHECK_COMPILE_FLAG([-std=c++14], [CXXFLAGS="$CXXFLAGS -std=c++14"], [
    AX_CHECK_COMPILE_FLAG([-std=c++1y], [CXXFLAGS="$CXXFLAGS -std=c++1y"], [
     AX_CHECK_COMPILE_FLAG([-std=c++11], [CXXFLAGS="$CXXFLAGS -std=c++11"], [
-     AX_CHECK_COMPILE_FLAG([-std=c++0x], [CXXFLAGS="$CXXFLAGS -std=c++0x"], [])
+     AC_MSG_ERROR([could not enable C++11 or newer])
     ])
    ])
   ])
@@ -177,4 +172,4 @@ cat <<EOF
     * conference demos: $enable_extra_demos
 EOF
 AS_IF([test x$with_libxmlpp != xno -a x$with_tinyxml2 != xno],
-      [AC_MSG_WARN([You can only have one xml library (e.g., --with-tinyxml2 --without-libxmlpp)])])
+      [AC_MSG_ERROR([You can only have one xml library (e.g., --with-tinyxml2 --without-libxmlpp)])])

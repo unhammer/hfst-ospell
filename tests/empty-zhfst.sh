@@ -1,8 +1,9 @@
 #!/bin/bash
 
 if test -x ./hfst-ospell ; then
-    touch empty.zhfst
-    if ! cat $srcdir/test.strings | ./hfst-ospell -v empty.zhfst ; then
+    rm -f empty.zhfst
+	touch empty.zhfst
+    if ! cat $srcdir/tests/test.strings | ./hfst-ospell -v empty.zhfst ; then
         exit 1
     fi
 else

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if test -x ./hfst-ospell ; then
-    if ! cat $srcdir/test.strings | ./hfst-ospell no_errormodel.zhfst ; then
+    if ! cat $srcdir/tests/test.strings | ./hfst-ospell -v $srcdir/tests/empty_locale.zhfst ; then
         exit 1
     fi
 else
