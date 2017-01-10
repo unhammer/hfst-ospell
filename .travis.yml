@@ -1,11 +1,15 @@
+sudo: required
+dist: trusty
 language: cpp
-compiler:
-    - clang
-    - gcc
-before_install:
-    - sudo apt-get install libxml++2.6-dev libarchive-dev
+
+addons:
+  apt:
+    packages:
+      - libxml++2.6-dev
+      - libarchive-dev
+
 script:
-    - autoreconf -fi
-    - ./configure --disable-static --enable-zhfst
-    - make
-    - make check
+  - autoreconf -fi
+  - ./configure --disable-static --enable-zhfst
+  - make -j3
+  - make -j1 check
