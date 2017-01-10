@@ -4,10 +4,8 @@ compiler:
     - gcc
 before_install:
     - sudo apt-get install libxml++2.6-dev libarchive-dev
-    - wget http://apertium.projectjj.com/apt/install-nightly.sh -O - | sudo bash
-    - sudo apt-get install hfst
 script:
-    - ./autogen.sh
-    - ./configure
+    - autoreconf -fi
+    - ./configure --disable-static --enable-zhfst
     - make
     - make check
