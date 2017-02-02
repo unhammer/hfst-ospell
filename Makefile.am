@@ -129,4 +129,13 @@ doxygen:
 	$(DOXYGEN)
 endif
 
-EXTRA_DIST=hfst-ospell.1 hfst-ospell-office.1
+EXTRA_DIST=hfst-ospell.1 hfst-ospell-office.1 tests/basic-zhfst.sh tests/basic-edit1.sh \
+	  tests/empty-descriptions.sh tests/empty-titles.sh tests/empty-locale.sh \
+	  tests/trailing-spaces.sh tests/bad-errormodel.sh tests/empty-zhfst.sh \
+	  tests/analyse-spell.sh tests/no-errormodel.sh \
+	  tests/empty-descriptions.sh tests/empty-titles.sh tests/empty-locale.sh tests/empty-zhfst.sh \
+	  tests/acceptor.basic.txt tests/analyser.default.txt tests/errmodel.basic.txt tests/errmodel.edit1.txt tests/errmodel.extrachars.txt \
+	  tests/test.strings \
+	  tests/bad_errormodel.zhfst tests/empty_descriptions.zhfst tests/empty_locale.zhfst tests/empty_titles.zhfst tests/no_errormodel.zhfst \
+	  tests/speller_analyser.zhfst tests/speller_basic.zhfst tests/speller_edit1.zhfst tests/trailing_spaces.zhfst \
+	  tests/basic_test.xml tests/empty_descriptions.xml tests/empty_locale.xml tests/empty_titles.xml tests/no_errmodel.xml tests/trailing_spaces.xml
