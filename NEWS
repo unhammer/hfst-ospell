@@ -4,6 +4,16 @@ NEWS for hfst-ospell
 This file contains all noteworthy changes in HFST-ospell development between
 releases. For full listing of changes see ChangeLog.
 
+Noteworthy changes in 0.4.4
+---------------------------
+
+* restructure order of files
+* remove HFST dependency
+* fix issue #26
+* check for failures in archive extraction
+* fix dll issues on windows
+* allow building without XML support
+
 Noteworthy changes in 0.4.3
 ---------------------------
 
