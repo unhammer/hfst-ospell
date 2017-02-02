@@ -1,4 +1,7 @@
-671efe6 (HEAD -> master, origin/master, origin/HEAD) Trusty has C++11
+4f2026c (HEAD -> master, origin/master, origin/HEAD) Add missing files to dist.
+bae21c3 Forgot to commit configure.ac... Update hfst-ospell manual and add man pages to dist.
+7c8690a (tag: v0.4.4) Ready for release 0.4.4.
+671efe6 Trusty has C++11
 32842b1 Disable nightly repo
 2a4e556 Move more files
 0ab57c9 Remove HFST dependency - fixes #26; Move tests to folder

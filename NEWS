@@ -4,6 +4,11 @@ NEWS for hfst-ospell
 This file contains all noteworthy changes in HFST-ospell development between
 releases. For full listing of changes see ChangeLog.
 
+Noteworthy changes in 0.4.5
+---------------------------
+
+* this is a bugfix release
+
 Noteworthy changes in 0.4.4
 ---------------------------
 
