@@ -128,3 +128,5 @@ if CAN_DOXYGEN
 doxygen:
 	$(DOXYGEN)
 endif
+
+EXTRA_DIST=hfst-ospell.1 hfst-ospell-office.1
