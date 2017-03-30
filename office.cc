@@ -1,7 +1,9 @@
 /*
 
-  Copyright 2009 University of Helsinki
-  Copyright 2015 Tino Didriksen <mail@tinodidriksen.com>
+  Copyright 2015 University of Helsinki
+
+  Bug reports for this file should go to:
+  Tino Didriksen <mail@tinodidriksen.com>
   Code adapted from https://github.com/TinoDidriksen/trie-tools
 
   Licensed under the Apache License, Version 2.0 (the "License");
