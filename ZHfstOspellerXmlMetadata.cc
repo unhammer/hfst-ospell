@@ -27,8 +27,11 @@
 #  include <tinyxml2.h>
 #endif
 
+#include <fstream>
 #include <string>
 #include <map>
+#include <cstring>
+#include <sys/stat.h>
 
 using std::string;
 using std::map;
@@ -926,12 +929,54 @@ ZHfstOspellerXmlMetadata::read_xml(const string& filename)
     this->parse_xml(doc);
   }
 #else
+
 void
-    ZHfstOspellerXmlMetadata::read_xml(const char*, size_t)
-      {}
+ZHfstOspellerXmlMetadata::read_xml(const char* xml_data, size_t xml_len)
+  {
+    // Parse locale
+    auto b = strstr(xml_data, "<locale>");
+    auto e = strstr(xml_data, "</locale>");
+
+    if (b == nullptr || e == nullptr || b >= e) {
+        throw ZHfstMetaDataParsingError("Could not find <locale>...</locale> in the XML");
+    }
+
+    info_.locale_.assign(b + 8, e);
+
+    // Parse title
+    b = strstr(xml_data, "<title>");
+    e = strstr(xml_data, "</title>");
+
+    if (b == nullptr || e == nullptr || b >= e) {
+        throw ZHfstMetaDataParsingError("Could not find <title>...</title> in the XML");
+    }
+
+    info_.title_[info_.locale_].assign(b + 7, e);
+
+    // Parse description
+    b = strstr(xml_data, "<description>");
+    e = strstr(xml_data, "</description>");
+
+    if (b == nullptr || e == nullptr || b >= e) {
+        throw ZHfstMetaDataParsingError("Could not find <description>...</description> in the XML");
+    }
+
+    info_.description_[info_.locale_].assign(b + 13, e);
+  }
+
 void
-    ZHfstOspellerXmlMetadata::read_xml(const std::string&)
-      {}
+ZHfstOspellerXmlMetadata::read_xml(const std::string& filename)
+  {
+    std::ifstream file(filename, std::ios::binary);
+    struct stat st;
+    stat(filename.c_str(), &st);
+
+    std::string xml(static_cast<size_t>(st.st_size), 0);
+    file.read(&xml[0], static_cast<size_t>(st.st_size));
+
+    read_xml(xml.c_str(), xml.size());
+  }
+
 #endif // HAVE_LIBXML
 
 
