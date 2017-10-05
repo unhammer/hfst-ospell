@@ -935,7 +935,7 @@ ZHfstOspellerXmlMetadata::read_xml(const char* xml_data, size_t xml_len)
   {
     // Parse locale
     auto b = strstr(xml_data, "<locale>");
-    auto e = strstr(xml_data, "</locale>");
+    auto e = strstr(b, "</locale>");
 
     if (b == nullptr || e == nullptr || b >= e) {
         throw ZHfstMetaDataParsingError("Could not find <locale>...</locale> in the XML");
@@ -945,7 +945,7 @@ ZHfstOspellerXmlMetadata::read_xml(const char* xml_data, size_t xml_len)
 
     // Parse title
     b = strstr(xml_data, "<title>");
-    e = strstr(xml_data, "</title>");
+    e = strstr(b, "</title>");
 
     if (b == nullptr || e == nullptr || b >= e) {
         throw ZHfstMetaDataParsingError("Could not find <title>...</title> in the XML");
@@ -955,7 +955,7 @@ ZHfstOspellerXmlMetadata::read_xml(const char* xml_data, size_t xml_len)
 
     // Parse description
     b = strstr(xml_data, "<description>");
-    e = strstr(xml_data, "</description>");
+    e = strstr(b, "</description>");
 
     if (b == nullptr || e == nullptr || b >= e) {
         throw ZHfstMetaDataParsingError("Could not find <description>...</description> in the XML");
