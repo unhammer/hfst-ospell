@@ -82,6 +82,14 @@ namespace hfst_ol
             //                    instead of the detection model
             AnalysisQueue analyse(const std::string& wordform,
                                   bool ask_sugger = false);
+            //! @brief analyse word form morphologically, unconcatenated output
+            //!        strings (making it easier to find Multichar_symbols of
+            //!        the FST)
+            //! @param wordform   the string to analyse
+            //! @param ask_sugger whether to use the spelling correction model
+            //                    instead of the detection model
+            AnalysisSymbolsQueue analyseSymbols(const std::string& wordform,
+                                                bool ask_sugger = false);
             //! @brief construct an ordered set of corrections with analyses
             AnalysisCorrectionQueue suggest_analyses(const std::string&
                                                      wordform);

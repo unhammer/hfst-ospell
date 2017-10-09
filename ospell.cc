@@ -778,6 +778,44 @@ AnalysisQueue Speller::analyse(char * line, int nbest)
 }
 
 
+AnalysisSymbolsQueue Speller::analyseSymbols(char * line, int nbest)
+{
+    (void)nbest;
+    mode = Lookup;
+    if (!init_input(line)) {
+        return AnalysisSymbolsQueue();
+    }
+    std::map<std::vector<std::string>, Weight> outputs;
+    AnalysisSymbolsQueue analyses;
+    TreeNode start_node(FlagDiacriticState(get_state_size(), 0));
+    queue.assign(1, start_node);
+    while (queue.size() > 0) {
+        next_node = queue.back();
+        queue.pop_back();
+        // Final states
+        if (next_node.input_state == input.size() &&
+            lexicon->is_final(next_node.lexicon_state)) {
+            Weight weight = next_node.weight +
+                lexicon->final_weight(next_node.lexicon_state);
+            std::vector<std::string> output = symbolify(lexicon->get_key_table(),
+                                                        next_node.string);
+            /* if the result is novel or lower weighted than before, insert it */
+            if (outputs.count(output) == 0 ||
+                outputs[output] > weight) {
+                outputs[output] = weight;
+            }
+        }
+        lexicon_epsilons();
+        lexicon_consume();
+    }
+    std::map<std::vector<std::string>, Weight>::const_iterator it;
+    for (it = outputs.begin(); it != outputs.end(); ++it) {
+        analyses.push(SymbolsWeightPair(it->first, it->second));
+    }
+    return analyses;
+}
+
+
 
 void Speller::build_cache(SymbolNumber first_sym)
 {
@@ -1060,6 +1098,19 @@ std::string stringify(KeyTable * key_table,
          it != symbol_vector.end(); ++it) {
         if (*it < key_table->size()) {
             s.append(key_table->at(*it));
+        }
+    }
+    return s;
+}
+
+std::vector<std::string> symbolify(KeyTable * key_table,
+                                   SymbolVector & symbol_vector)
+{
+    std::vector<std::string> s;
+    for (SymbolVector::iterator it = symbol_vector.begin();
+         it != symbol_vector.end(); ++it) {
+        if (*it < key_table->size()) {
+            s.push_back(key_table->at(*it));
         }
     }
     return s;
