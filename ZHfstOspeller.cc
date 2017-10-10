@@ -135,17 +135,13 @@ ZHfstOspeller::~ZHfstOspeller()
         current_sugger_ = 0;
         current_speller_ = 0;
       }
-    for (map<string, Transducer*>::iterator acceptor = acceptors_.begin();
-         acceptor != acceptors_.end();
-         ++acceptor)
+    for (auto& acceptor : acceptors_)
       {
-        delete acceptor->second;
+        delete acceptor.second;
       }
-    for (map<string, Transducer*>::iterator errmodel = errmodels_.begin();
-         errmodel != errmodels_.end();
-         ++errmodel)
+    for (auto& errmodel : errmodels_)
       {
-        delete errmodel->second;
+        delete errmodel.second;
       }
     can_spell_ = false;
     can_correct_ = false;

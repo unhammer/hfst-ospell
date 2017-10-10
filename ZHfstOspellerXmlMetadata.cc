@@ -120,42 +120,40 @@ void
 ZHfstOspellerXmlMetadata::parse_info(xmlpp::Node* infoNode)
   {
     xmlpp::Node::NodeList infos = infoNode->get_children();
-    for (xmlpp::Node::NodeList::iterator info = infos.begin();
-         info != infos.end();
-         ++info)
+    for (auto& info : infos)
       {
-        const Glib::ustring infoName = (*info)->get_name();
+        const Glib::ustring infoName = info->get_name();
         if (infoName == "locale")
           {
-            parse_locale(*info);
+            parse_locale(info);
           }
         else if (infoName == "title")
           {
-            parse_title(*info);
+            parse_title(info);
           }
         else if (infoName == "description")
           {
-            parse_description(*info);
+            parse_description(info);
           }
         else if (infoName == "version")
           {
-            parse_version(*info);
+            parse_version(info);
           }
         else if (infoName == "date")
           {
-            parse_date(*info);
+            parse_date(info);
           }
         else if (infoName == "producer")
           {
-            parse_producer(*info);
+            parse_producer(info);
           }
         else if (infoName == "contact")
           {
-            parse_contact(*info);
+            parse_contact(info);
           }
         else
           {
-            const xmlpp::TextNode* text = dynamic_cast<xmlpp::TextNode*>(*info);
+            const xmlpp::TextNode* text = dynamic_cast<xmlpp::TextNode*>(info);
             if ((text == NULL) || (!text->is_white_space()))
               {
                 fprintf(stderr, "DEBUG: unknown info child %s\n",
@@ -301,22 +299,20 @@ ZHfstOspellerXmlMetadata::parse_acceptor(xmlpp::Node* acceptorNode)
         acceptor_[descr].type_ = xtype->get_value();
       }
     xmlpp::Node::NodeList accs = acceptorNode->get_children();
-    for (xmlpp::Node::NodeList::iterator acc = accs.begin();
-         acc != accs.end();
-         ++acc)
+    for (auto& acc : accs)
       {
-        const Glib::ustring accName = (*acc)->get_name();
+        const Glib::ustring accName = acc->get_name();
         if (accName == "title")
           {
-            parse_title(*acc, descr);
+            parse_title(acc, descr);
           }
         else if (accName == "description")
           {
-            parse_description(*acc, descr);
+            parse_description(acc, descr);
           }
         else
           {
-            const xmlpp::TextNode* text = dynamic_cast<xmlpp::TextNode*>(*acc);
+            const xmlpp::TextNode* text = dynamic_cast<xmlpp::TextNode*>(acc);
             if ((text == NULL) || (!text->is_white_space()))
               {
                 fprintf(stderr, "DEBUG: unknown acceptor node %s\n",
@@ -385,30 +381,28 @@ ZHfstOspellerXmlMetadata::parse_errmodel(xmlpp::Node* errmodelNode)
     free(descr);
     errmodel_[errm_count].id_ = xidValue;
     xmlpp::Node::NodeList errms = errmodelNode->get_children();
-    for (xmlpp::Node::NodeList::iterator errm = errms.begin();
-           errm != errms.end();
-           ++errm)
+    for (auto& errm : errms)
       {
-        const Glib::ustring errmName = (*errm)->get_name();
+        const Glib::ustring errmName = errm->get_name();
         if (errmName == "title")
           {
-            parse_title(*errm, errm_count);
+            parse_title(errm, errm_count);
           }
         else if (errmName == "description")
           {
-            parse_description(*errm, errm_count);
+            parse_description(errm, errm_count);
           }
         else if (errmName == "type")
           {
-            parse_type(*errm, errm_count);
+            parse_type(errm, errm_count);
           }
         else if (errmName == "model")
           {
-            parse_model(*errm, errm_count);
+            parse_model(errm, errm_count);
           }
         else
           {
-            const xmlpp::TextNode* text = dynamic_cast<xmlpp::TextNode*>(*errm);
+            const xmlpp::TextNode* text = dynamic_cast<xmlpp::TextNode*>(errm);
             if ((text == NULL) || (!text->is_white_space()))
               {
                 fprintf(stderr, "DEBUG: unknown errmodel node %s\n",
@@ -490,26 +484,24 @@ ZHfstOspellerXmlMetadata::parse_xml(const xmlpp::Document* doc)
     verify_hfstspeller(rootNode);
     // parse
     xmlpp::Node::NodeList nodes = rootNode->get_children();
-    for (xmlpp::Node::NodeList::iterator node = nodes.begin();
-         node != nodes.end();
-         ++node)
+    for (auto& node : nodes)
       {
-        const Glib::ustring nodename = (*node)->get_name();
+        const Glib::ustring nodename = node->get_name();
         if (nodename == "info")
           {
-            parse_info(*node);
+            parse_info(node);
           } // if info node
         else if (nodename == "acceptor")
           {
-            parse_acceptor(*node);
+            parse_acceptor(node);
           } // acceptor node
         else if (nodename == "errmodel")
           {
-            parse_errmodel(*node);
+            parse_errmodel(node);
           } // errmodel node
         else
           {
-            const xmlpp::TextNode* text = dynamic_cast<xmlpp::TextNode*>(*node);
+            const xmlpp::TextNode* text = dynamic_cast<xmlpp::TextNode*>(node);
             if ((text == NULL) || (!text->is_white_space()))
               {
                 fprintf(stderr, "DEBUG: unknown root child %s\n",
@@ -988,74 +980,54 @@ ZHfstOspellerXmlMetadata::debug_dump() const
         "date: " + info_.date_ + "\n"
         "producer: " + info_.producer_ + "[email: <" + info_.email_ + ">, "
         "website: <" + info_.website_ + ">]\n";
-    for (map<string,string>::const_iterator title = info_.title_.begin();
-         title != info_.title_.end();
-         ++title)
+    for (auto& title : info_.title_)
       {
-        retval.append("title [" + title->first + "]: " + title->second + "\n");
+        retval.append("title [" + title.first + "]: " + title.second + "\n");
       }
-    for (map<string,string>::const_iterator description = info_.description_.begin();
-         description != info_.description_.end();
-         ++description)
+    for (auto& description : info_.description_)
       {
-        retval.append("description [" + description->first + "]: " +
-            description->second + "\n");
+        retval.append("description [" + description.first + "]: " +
+            description.second + "\n");
       }
-    for (map<string,ZHfstOspellerAcceptorMetadata>::const_iterator acc = acceptor_.begin();
-         acc != acceptor_.end();
-         ++acc)
+    for (auto& acc : acceptor_)
       {
-        retval.append("acceptor[" + acc->second.descr_ + "] [id: " + acc->second.id_ +
-                      ", type: " + acc->second.type_ + "trtype: " + acc->second.transtype_ +
+        retval.append("acceptor[" + acc.second.descr_ + "] [id: " + acc.second.id_ +
+                      ", type: " + acc.second.type_ + "trtype: " + acc.second.transtype_ +
                       "]\n");
 
-        for (LanguageVersions::const_iterator title = acc->second.title_.begin();
-             title != acc->second.title_.end();
-             ++title)
+        for (auto& title : acc.second.title_)
           {
-            retval.append("title [" + title->first + "]: " + title->second +
+            retval.append("title [" + title.first + "]: " + title.second +
                           "\n");
           }
-        for (LanguageVersions::const_iterator description = acc->second.description_.begin();
-             description != acc->second.description_.end();
-             ++description)
+        for (auto& description : acc.second.description_)
           {
-            retval.append("description[" + description->first + "]: "
-                          + description->second + "\n");
+            retval.append("description[" + description.first + "]: "
+                          + description.second + "\n");
           }
       }
-    for (std::vector<ZHfstOspellerErrModelMetadata>::const_iterator errm = errmodel_.begin();
-         errm != errmodel_.end();
-         ++errm)
+    for (auto& errm : errmodel_)
       {
-        retval.append("errmodel[" + errm->descr_ + "] [id: " + errm->id_ +
+        retval.append("errmodel[" + errm.descr_ + "] [id: " + errm.id_ +
                       "]\n");
 
-        for (LanguageVersions::const_iterator title = errm->title_.begin();
-             title != errm->title_.end();
-             ++title)
+        for (auto& title : errm.title_)
           {
-            retval.append("title [" + title->first + "]: " + title->second +
+            retval.append("title [" + title.first + "]: " + title.second +
                           "\n");
           }
-        for (LanguageVersions::const_iterator description = errm->description_.begin();
-             description != errm->description_.end();
-             ++description)
+        for (auto& description : errm.description_)
           {
-            retval.append("description[" + description->first + "]: "
-                          + description->second + "\n");
+            retval.append("description[" + description.first + "]: "
+                          + description.second + "\n");
           }
-        for (std::vector<string>::const_iterator type = errm->type_.begin();
-             type != errm->type_.end();
-             ++type)
+        for (auto& type : errm.type_)
           {
-            retval.append("type: " + *type + "\n");
+            retval.append("type: " + type + "\n");
           }
-        for (std::vector<string>::const_iterator model = errm->model_.begin();
-             model != errm->model_.end();
-             ++model)
+        for (auto& model : errm.model_)
           {
-            retval.append("model: " + *model + "\n");
+            retval.append("model: " + model + "\n");
           }
       }
 

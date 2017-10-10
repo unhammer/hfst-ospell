@@ -17,7 +17,7 @@
 
 # autoconf requirements
 AC_PREREQ([2.62])
-AC_INIT([hfstospell], [0.4.5], [hfst-bugs@helsinki.fi], [hfstospell], [http://hfst.github.io])
+AC_INIT([hfstospell], [0.5.0], [hfst-bugs@helsinki.fi], [hfstospell], [http://hfst.github.io])
 
 LT_PREREQ([2.2.6])
 

@@ -559,9 +559,8 @@ AnalysisQueue Transducer::lookup(char * line)
         
     }
     
-    std::map<std::string, Weight>::const_iterator it;
-    for (it = outputs.begin(); it != outputs.end(); ++it) {
-        analyses.push(StringWeightPair(it->first, it->second));
+    for (auto& it : outputs) {
+        analyses.push(StringWeightPair(it.first, it.second));
     }
     
     return analyses;
@@ -770,9 +769,9 @@ AnalysisQueue Speller::analyse(char * line, int nbest)
         lexicon_epsilons();
         lexicon_consume();
     }
-    std::map<std::string, Weight>::const_iterator it;
-    for (it = outputs.begin(); it != outputs.end(); ++it) {
-        analyses.push(StringWeightPair(it->first, it->second));
+
+    for (auto& it : outputs) {
+        analyses.push(StringWeightPair(it.first, it.second));
     }
     return analyses;
 }
@@ -808,9 +807,9 @@ AnalysisSymbolsQueue Speller::analyseSymbols(char * line, int nbest)
         lexicon_epsilons();
         lexicon_consume();
     }
-    std::map<std::vector<std::string>, Weight>::const_iterator it;
-    for (it = outputs.begin(); it != outputs.end(); ++it) {
-        analyses.push(SymbolsWeightPair(it->first, it->second));
+
+    for (auto& it : outputs) {
+        analyses.push(SymbolsWeightPair(it.first, it.second));
     }
     return analyses;
 }
@@ -899,26 +898,24 @@ CorrectionQueue Speller::correct(char * line, int nbest,
         } else {
             results = &cache[first_input].results_len_1;
         }
-        for(StringWeightVector::const_iterator it = results->begin();
+        for(auto& it : *results) {
               // First get the correct weight limit
-              it != results->end(); ++it) {
-                best_suggestion = std::min(best_suggestion, it->second);
+                best_suggestion = std::min(best_suggestion, it.second);
                 if (nbest > 0) {
-                    nbest_queue.push(it->second);
+                    nbest_queue.push(it.second);
                     if (nbest_queue.size() > nbest) {
                         nbest_queue.pop();
                     }
                 }
             }
         adjust_weight_limits(nbest, beam);
-        for(StringWeightVector::const_iterator it = results->begin();
+        for(auto& it : *results) {
               // Then collect the results
-              it != results->end(); ++it) {
-            if (it->second <= limit && (nbest == 0 || // we either don't have an nbest condition or
-                                        (it->second <= nbest_queue.get_highest() && // we're below the worst nbest weight and
+            if (it.second <= limit && (nbest == 0 || // we either don't have an nbest condition or
+                                        (it.second <= nbest_queue.get_highest() && // we're below the worst nbest weight and
                                          correction_queue.size() < nbest &&
                                          nbest_queue.size() > 0))) { // number of results
-                correction_queue.push(StringWeightPair(it->first, it->second));
+                correction_queue.push(StringWeightPair(it.first, it.second));
                 if (nbest != 0) {
                     nbest_queue.pop();
                 }
@@ -995,14 +992,14 @@ CorrectionQueue Speller::correct(char * line, int nbest,
         }
     }
     adjust_weight_limits(nbest, beam);
-    std::map<std::string, Weight>::iterator it;
-    for (it = corrections.begin(); it != corrections.end(); ++it) {
-        if (it->second <= limit && // we're not over our weight limit and
+
+    for (auto& it : corrections) {
+        if (it.second <= limit && // we're not over our weight limit and
             (nbest == 0 || // we either don't have an nbest condition or
-             (it->second <= nbest_queue.get_highest() && // we're below the worst nbest weight and
+             (it.second <= nbest_queue.get_highest() && // we're below the worst nbest weight and
               correction_queue.size() < nbest &&
               nbest_queue.size() > 0))) { // number of results
-            correction_queue.push(StringWeightPair(it->first, it->second));
+            correction_queue.push(StringWeightPair(it.first, it.second));
             if (nbest != 0) {
                 nbest_queue.pop();
             }
@@ -1094,10 +1091,9 @@ std::string stringify(KeyTable * key_table,
                       SymbolVector & symbol_vector)
 {
     std::string s;
-    for (SymbolVector::iterator it = symbol_vector.begin();
-         it != symbol_vector.end(); ++it) {
-        if (*it < key_table->size()) {
-            s.append(key_table->at(*it));
+    for (auto& it : symbol_vector) {
+        if (it < key_table->size()) {
+            s.append(key_table->at(it));
         }
     }
     return s;
@@ -1107,10 +1103,9 @@ std::vector<std::string> symbolify(KeyTable * key_table,
                                    SymbolVector & symbol_vector)
 {
     std::vector<std::string> s;
-    for (SymbolVector::iterator it = symbol_vector.begin();
-         it != symbol_vector.end(); ++it) {
-        if (*it < key_table->size()) {
-            s.push_back(key_table->at(*it));
+    for (auto& it : symbol_vector) {
+        if (it < key_table->size()) {
+            s.push_back(key_table->at(it));
         }
     }
     return s;
@@ -1223,4 +1218,3 @@ hfst_strndup(const char* s, size_t n)
     rv[n] = '\0';
     return rv;
   }
-    

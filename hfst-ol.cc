@@ -776,13 +776,9 @@ SymbolNumber LetterTrie::find_key(char ** p)
 
 LetterTrie::~LetterTrie()
 {
-    for (LetterTrieVector::iterator i = letters.begin();
-         i != letters.end(); ++i)
+    for (auto& i : letters)
     {
-        if (*i)
-        {
-            delete *i;
-        }
+        delete i;
     }
 }
 
