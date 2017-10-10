@@ -34,6 +34,7 @@ struct TreeNode;
 struct CacheContainer;
 typedef std::pair<std::string, std::string> StringPair;
 typedef std::pair<std::string, Weight> StringWeightPair;
+typedef std::pair<std::vector<std::string>, Weight> SymbolsWeightPair;
 typedef std::vector<StringWeightPair> StringWeightVector;
 typedef std::pair<std::pair<std::string, std::string>, Weight>
                                                         StringPairWeightPair;
@@ -97,6 +98,38 @@ public:
     }
 };
 
+
+//! The suggestions that are stored in a priority queue are arranged in
+//! as in StringWeightComparison.
+//
+//! Follows weight value logic.
+//! @see StringWeightComparison.
+class SymbolsWeightComparison
+/* results are reversed by default because greater weights represent
+   worse results - to reverse the reversal, give a true argument*/
+
+{
+    bool reverse;
+public:
+    //!
+    //! construct a result comparator with ascending or descending weight order
+    SymbolsWeightComparison(bool reverse_result=false):
+        reverse(reverse_result)
+        {}
+
+    //!
+    //! compare two symbols weight pairs for weights
+    bool operator() (const SymbolsWeightPair& lhs, const SymbolsWeightPair& rhs) const
+    { // return true when we want rhs to appear before lhs
+        if (reverse) {
+            return (lhs.second < rhs.second);
+        }
+        else {
+            return (lhs.second > rhs.second);
+        }
+    }
+};
+
 //! @brief comparison for complex analysis queues
 //
 //! Follows weight value logic.
@@ -136,6 +169,9 @@ typedef std::priority_queue<StringWeightPair,
 typedef std::priority_queue<StringPairWeightPair,
                             std::vector<StringPairWeightPair>,
                             StringPairWeightComparison> AnalysisCorrectionQueue;
+typedef std::priority_queue<SymbolsWeightPair,
+                            std::vector<SymbolsWeightPair>,
+                            SymbolsWeightComparison> AnalysisSymbolsQueue;
 
 struct WeightQueue: public std::list<Weight>
 {
@@ -432,6 +468,13 @@ public:
     //! string is in language model and 0 results if it isn't.
     AnalysisQueue analyse(char * line, int nbest = 0);
 
+    //! @brief analyse given string @a line.
+    //
+    //! Like analyse, but keep symbols separate, instead of concatenating to
+    //! strings.
+    AnalysisSymbolsQueue analyseSymbols(char * line, int nbest = 0);
+
+
     void build_cache(SymbolNumber first_sym);
     //! @brief Construct a cache entry for @a first_sym..
 
@@ -459,6 +502,9 @@ struct CacheContainer
 
 std::string stringify(KeyTable * key_table,
                       SymbolVector & symbol_vector);
+
+std::vector<std::string> symbolify(KeyTable * key_table,
+                                   SymbolVector & symbol_vector);
 
 } // namespace hfst_ol
 

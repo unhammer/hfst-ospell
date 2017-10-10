@@ -232,6 +232,23 @@ ZHfstOspeller::analyse(const string& wordform, bool ask_sugger)
     return rv;
   }
 
+AnalysisSymbolsQueue
+ZHfstOspeller::analyseSymbols(const string& wordform, bool ask_sugger)
+  {
+    AnalysisSymbolsQueue rv;
+    char* wf = strdup(wordform.c_str());
+    if ((can_analyse_) && (!ask_sugger) && (current_speller_ != 0))
+      {
+          rv = current_speller_->analyseSymbols(wf);
+      }
+    else if ((can_analyse_) && (ask_sugger) && (current_sugger_ != 0))
+      {
+          rv = current_sugger_->analyseSymbols(wf);
+      }
+    free(wf);
+    return rv;
+  }
+
 AnalysisCorrectionQueue
 ZHfstOspeller::suggest_analyses(const string& wordform)
   {
