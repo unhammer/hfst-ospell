@@ -42,7 +42,7 @@ using std::map;
 #include "ZHfstOspeller.h"
 #include "ZHfstOspellerXmlMetadata.h"
 
-namespace hfst_ol
+namespace hfst_ospell
   {
 
 ZHfstOspellerXmlMetadata::ZHfstOspellerXmlMetadata()
@@ -1034,6 +1034,6 @@ ZHfstOspellerXmlMetadata::debug_dump() const
     return retval;
   }
 
-  } // namespace hfst_ol
+  } // namespace hfst_ospell
 
 

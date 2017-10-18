@@ -37,8 +37,8 @@
 #include "ospell.h"
 #include "ZHfstOspeller.h"
 
-using hfst_ol::ZHfstOspeller;
-using hfst_ol::Transducer;
+using hfst_ospell::ZHfstOspeller;
+using hfst_ospell::Transducer;
 
 static bool quiet = false;
 static bool verbose = false;
@@ -120,24 +120,24 @@ legacy_spell(const char* errmodel_filename, const char* acceptor_filename)
               << std::endl;
         return EXIT_FAILURE;
     }
-    hfst_ol::Transducer * mutator;
-    hfst_ol::Transducer * lexicon;
-    mutator = new hfst_ol::Transducer(mutator_file);
+    hfst_ospell::Transducer * mutator;
+    hfst_ospell::Transducer * lexicon;
+    mutator = new hfst_ospell::Transducer(mutator_file);
     if (!mutator->is_weighted()) {
         std::cerr << "Error source was unweighted, exiting\n\n";
         return EXIT_FAILURE;
     }
-    lexicon = new hfst_ol::Transducer(lexicon_file);
+    lexicon = new hfst_ospell::Transducer(lexicon_file);
     if (!lexicon->is_weighted()) {
         std::cerr << "Lexicon was unweighted, exiting\n\n";
         return EXIT_FAILURE;
     }
     
-    hfst_ol::Speller * speller;
+    hfst_ospell::Speller * speller;
 
     try {
-        speller = new hfst_ol::Speller(mutator, lexicon);
-    } catch (hfst_ol::AlphabetTranslationException& e) {
+        speller = new hfst_ospell::Speller(mutator, lexicon);
+    } catch (hfst_ospell::AlphabetTranslationException& e) {
         std::cerr <<
         "Unable to build speller - symbol " << e.what() << " not "
         "present in lexicon's alphabet\n";
@@ -215,7 +215,7 @@ legacy_spell(const char* errmodel_filename, const char* acceptor_filename)
                 fprintf(stdout, "\t%s\n", str);
               }
           }
-        hfst_ol::CorrectionQueue corrections = speller->correct(str /*,
+        hfst_ospell::CorrectionQueue corrections = speller->correct(str /*,
                                                                 max_results */);
         while (corrections.size() > 0)
           {

@@ -18,7 +18,7 @@
 
 #include "ospell.h"
 
-namespace hfst_ol {
+namespace hfst_ospell {
 
 int nByte_utf8(unsigned char c)
 {
@@ -1200,7 +1200,7 @@ void Speller::add_symbol_to_alphabet_translator(SymbolNumber to_sym)
     alphabet_translator.push_back(to_sym);
 }
 
-} // namespace hfst_ol
+} // namespace hfst_ospell
   
 char*
 hfst_strndup(const char* s, size_t n)

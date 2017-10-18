@@ -42,8 +42,8 @@
 #include "ospell.h"
 #include "ZHfstOspeller.h"
 
-using hfst_ol::ZHfstOspeller;
-using hfst_ol::Transducer;
+using hfst_ospell::ZHfstOspeller;
+using hfst_ospell::Transducer;
 
 static bool quiet = false;
 static bool verbose = false;
@@ -116,12 +116,12 @@ zhfst_spell(char* zhfst_filename)
       {
         speller.read_zhfst(zhfst_filename);
       }
-   catch (hfst_ol::ZHfstMetaDataParsingError zhmdpe)
+   catch (hfst_ospell::ZHfstMetaDataParsingError zhmdpe)
      {
        error(EXIT_FAILURE, 0, "error while parsing metadata in %s: %s\n",
              zhfst_filename, zhmdpe.what());
      }
-   catch (hfst_ol::ZHfstZipReadingError zhzre)
+   catch (hfst_ospell::ZHfstZipReadingError zhzre)
      {
        error(EXIT_FAILURE, 0, "error while unzipping %s: %s\n",
              zhfst_filename, zhzre.what());
@@ -212,7 +212,7 @@ zhfst_spell(char* zhfst_filename)
                 fprintf(stdout, "\t%s", str);
               }
           }
-        hfst_ol::CorrectionQueue corrections = speller.suggest(str /*,
+        hfst_ospell::CorrectionQueue corrections = speller.suggest(str /*,
                                                                 max_results */);
         while (corrections.size() > 0)
           {

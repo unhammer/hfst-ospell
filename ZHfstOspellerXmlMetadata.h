@@ -35,7 +35,7 @@ using std::map;
 #include "ospell.h"
 #include "hfst-ol.h"
 
-namespace hfst_ol 
+namespace hfst_ospell 
   {
     //! @brief data type for associating set of translations to languages.
     typedef std::map<std::string,std::string> LanguageVersions;

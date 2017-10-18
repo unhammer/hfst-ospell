@@ -34,7 +34,7 @@
 #include <utility>
 #include "ol-exceptions.h"
 
-namespace hfst_ol {
+namespace hfst_ospell {
 
 typedef uint16_t SymbolNumber;
 typedef uint32_t TransitionTableIndex;
@@ -457,6 +457,6 @@ void debug_print(printable p)
     }
 }
 
-} // namespace hfst_ol
+} // namespace hfst_ospell
 
 #endif // HFST_OSPELL_HFST_OL_H_

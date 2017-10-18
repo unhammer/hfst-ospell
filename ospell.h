@@ -26,7 +26,7 @@
 #include <ctime>
 #include "hfst-ol.h"
 
-namespace hfst_ol {
+namespace hfst_ospell {
 
 //! Internal class for transition processing.
 
@@ -506,7 +506,7 @@ std::string stringify(KeyTable * key_table,
 std::vector<std::string> symbolify(KeyTable * key_table,
                                    SymbolVector & symbol_vector);
 
-} // namespace hfst_ol
+} // namespace hfst_ospell
 
 // Some platforms lack strndup
 char* hfst_strndup(const char* s, size_t n);

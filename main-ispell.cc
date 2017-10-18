@@ -38,8 +38,8 @@
 #include "ospell.h"
 #include "ZHfstOspeller.h"
 
-using hfst_ol::ZHfstOspeller;
-using hfst_ol::Transducer;
+using hfst_ospell::ZHfstOspeller;
+using hfst_ospell::Transducer;
 
 //static bool quiet = false;
 static bool verbose = false;
@@ -161,7 +161,7 @@ print_correct(const char* /*s*/)
 
 static
 void
-print_corrections(const char* s, hfst_ol::CorrectionQueue& c)
+print_corrections(const char* s, hfst_ospell::CorrectionQueue& c)
   {
     fprintf(stdout, "& %s %zu %d: ", s, c.size(), 0);
     bool comma = false;
@@ -202,26 +202,26 @@ legacy_spell(const char* errmodel_filename, const char* acceptor_filename)
               << std::endl;
         return EXIT_FAILURE;
       }
-    hfst_ol::Transducer * mutator;
-    hfst_ol::Transducer * lexicon;
-    mutator = new hfst_ol::Transducer(mutator_file);
+    hfst_ospell::Transducer * mutator;
+    hfst_ospell::Transducer * lexicon;
+    mutator = new hfst_ospell::Transducer(mutator_file);
     if (!mutator->is_weighted()) 
       {
         std::cerr << "Error source was unweighted, exiting\n\n";
         return EXIT_FAILURE;
       }
-    lexicon = new hfst_ol::Transducer(lexicon_file);
+    lexicon = new hfst_ospell::Transducer(lexicon_file);
     if (!lexicon->is_weighted()) 
       {
         std::cerr << "Lexicon was unweighted, exiting\n\n";
         return EXIT_FAILURE;
       }
-    hfst_ol::Speller * speller;
+    hfst_ospell::Speller * speller;
     try 
       {
-        speller = new hfst_ol::Speller(mutator, lexicon);
+        speller = new hfst_ospell::Speller(mutator, lexicon);
       }
-    catch (hfst_ol::AlphabetTranslationException& e) 
+    catch (hfst_ospell::AlphabetTranslationException& e) 
       {
         std::cerr <<
         "Unable to build speller - symbol " << e.what() << " not "
@@ -248,7 +248,7 @@ legacy_spell(const char* errmodel_filename, const char* acceptor_filename)
           }
         else
           {
-            hfst_ol::CorrectionQueue corrections = speller->correct(str, 5);
+            hfst_ospell::CorrectionQueue corrections = speller->correct(str, 5);
             if (corrections.size() > 0) 
               {
                 print_corrections(str, corrections);
@@ -270,13 +270,13 @@ zhfst_spell(char* zhfst_filename, FILE* input)
       {
         speller.read_zhfst(zhfst_filename);
       }
-    catch (hfst_ol::ZHfstMetaDataParsingError zhmdpe)
+    catch (hfst_ospell::ZHfstMetaDataParsingError zhmdpe)
       {
         std::cerr << "cannot finish reading zhfst archive " << zhfst_filename <<
                    ":" << zhmdpe.what() << "." << std::endl;
         return EXIT_FAILURE;
       }
-    catch (hfst_ol::ZHfstZipReadingError zhzre)
+    catch (hfst_ospell::ZHfstZipReadingError zhzre)
       {
         std::cerr << "cannot read zhfst archive " << zhfst_filename << ":" 
           << zhzre.what() << "." << std::endl
@@ -285,7 +285,7 @@ zhfst_spell(char* zhfst_filename, FILE* input)
           {
             speller.read_legacy(zhfst_filename);
           }
-        catch (hfst_ol::ZHfstLegacyReadingError zhlre)
+        catch (hfst_ospell::ZHfstLegacyReadingError zhlre)
           {
             std::cerr << "cannot fallback to read legacy hfst speller dir " 
               << zhfst_filename 
@@ -322,7 +322,7 @@ zhfst_spell(char* zhfst_filename, FILE* input)
           } 
         else 
           {
-            hfst_ol::CorrectionQueue corrections = speller.suggest(str);
+            hfst_ospell::CorrectionQueue corrections = speller.suggest(str);
             if (corrections.size() > 0)
               {
                 print_corrections(str, corrections);

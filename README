@@ -33,25 +33,25 @@ and link with:
 
 ## Programming examples
 
-The library lives in a namespace called hfst_ol. Pass (weighted!) Transducer
+The library lives in a namespace called hfst_ospell. Pass (weighted!) Transducer
 pointers to the Speller constructor, eg.:
 
     FILE * error_source = fopen(error_filename, "r");
     FILE * lexicon_file = fopen(lexicon_filename, "r");
-    hfst_ol::Transducer * error;
-    hfst_ol::Transducer * lexicon;
+    hfst_ospell::Transducer * error;
+    hfst_ospell::Transducer * lexicon;
     try {
-        error = new hfst_ol::Transducer(error_source);
-        lexicon = new hfst_ol::Transducer(lexicon_file);
-    } catch (hfst_ol::TransducerParsingException& e) {
+        error = new hfst_ospell::Transducer(error_source);
+        lexicon = new hfst_ospell::Transducer(lexicon_file);
+    } catch (hfst_ospell::TransducerParsingException& e) {
             /* problem with transducer file, usually completely
             different type of file - there's no magic number
             in the header to check for this */
         }
-    hfst_ol::Speller * speller;
+    hfst_ospell::Speller * speller;
     try {
-        speller = new hfst_ol::Speller(error, lexicon);
-    } catch (hfst_ol::AlphabetTranslationException& e) {
+        speller = new hfst_ospell::Speller(error, lexicon);
+    } catch (hfst_ospell::AlphabetTranslationException& e) {
         /* problem with translating between the two alphabets */
     }
 
@@ -59,10 +59,10 @@ pointers to the Speller constructor, eg.:
 And use the functions:
 
     // returns true if line is found in lexicon
-    bool hfst_ol::Speller::check(char * line);
+    bool hfst_ospell::Speller::check(char * line);
 
     // CorrectionQueue is a priority queue, sorted by weight
-    hfst_ol::CorrectionQueue hfst_ol::Speller::correct(char * line);
+    hfst_ospell::CorrectionQueue hfst_ospell::Speller::correct(char * line);
 
 
 to communicate with it. See main.cc for a concrete usage example. 
