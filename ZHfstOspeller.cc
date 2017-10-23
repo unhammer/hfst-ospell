@@ -37,7 +37,7 @@ using std::map;
 #include "hfst-ol.h"
 #include "ZHfstOspeller.h"
 
-namespace hfst_ol
+namespace hfst_ospell
   {
 
 #if HAVE_LIBARCHIVE
@@ -475,4 +475,4 @@ ZHfstOspeller::metadata_dump() const
     return metadata_.debug_dump();
 
   }
-} // namespace hfst_ol
+} // namespace hfst_ospell

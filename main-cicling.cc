@@ -140,24 +140,24 @@ int main(int argc, char **argv)
             return 1;
         }
     }
-    hfst_ol::Transducer * mutator;
-    hfst_ol::Transducer * lexicon;
-    mutator = new hfst_ol::Transducer(mutator_file);
+    hfst_ospell::Transducer * mutator;
+    hfst_ospell::Transducer * lexicon;
+    mutator = new hfst_ospell::Transducer(mutator_file);
     if (!mutator->is_weighted()) {
         std::cerr << "Error source was unweighted, exiting\n\n";
         return EXIT_FAILURE;
     }
-    lexicon = new hfst_ol::Transducer(lexicon_file);
+    lexicon = new hfst_ospell::Transducer(lexicon_file);
     if (!lexicon->is_weighted()) {
         std::cerr << "Lexicon was unweighted, exiting\n\n";
         return EXIT_FAILURE;
     }
     
-    hfst_ol::Speller * speller;
+    hfst_ospell::Speller * speller;
 
     try {
-        speller = new hfst_ol::Speller(mutator, lexicon);
-    } catch (hfst_ol::AlphabetTranslationException& e) {
+        speller = new hfst_ospell::Speller(mutator, lexicon);
+    } catch (hfst_ospell::AlphabetTranslationException& e) {
         std::cerr <<
         "Unable to build speller - symbol " << e.what() << " not "
         "present in lexicon's alphabet\n";
@@ -182,7 +182,7 @@ int main(int argc, char **argv)
         assert(tok != NULL);
         char* context = strdup(tok);
         // unknown += (corr in NWORDS)
-        hfst_ol::CorrectionQueue corrections = speller->correct(mispelt);
+        hfst_ospell::CorrectionQueue corrections = speller->correct(mispelt);
         if (corrections.size() == 0)
           {
             // correction too far

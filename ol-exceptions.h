@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 
-namespace hfst_ol
+namespace hfst_ospell
 {
 
 // This structure is inherited from for each exception. Taken from HFST library
@@ -51,12 +51,12 @@ struct OspellException
 
 // These macros are used instead of the normal exception facilities.
 
-#define HFST_THROW(E) throw E(#E,__FILE__,__LINE__)
+#define HFSTOSPELL_THROW(E) throw E(#E,__FILE__,__LINE__)
 
-#define HFST_THROW_MESSAGE(E,M) throw E(std::string(#E)+": "+std::string(M)\
+#define HFSTOSPELL_THROW_MESSAGE(E,M) throw E(std::string(#E)+": "+std::string(M)\
                         ,__FILE__,__LINE__)
 
-#define HFST_EXCEPTION_CHILD_DECLARATION(CHILD) \
+#define HFSTOSPELL_EXCEPTION_CHILD_DECLARATION(CHILD) \
     struct CHILD : public OspellException \
     { CHILD(const std::string &name,const std::string &file,size_t line):\
     OspellException(name,file,line) {}} 
@@ -70,16 +70,16 @@ struct OspellException
 
 // Now the exceptions themselves
 
-HFST_EXCEPTION_CHILD_DECLARATION(HeaderParsingException);
+HFSTOSPELL_EXCEPTION_CHILD_DECLARATION(HeaderParsingException);
 
-HFST_EXCEPTION_CHILD_DECLARATION(AlphabetParsingException);
+HFSTOSPELL_EXCEPTION_CHILD_DECLARATION(AlphabetParsingException);
 
-HFST_EXCEPTION_CHILD_DECLARATION(IndexTableReadingException);
+HFSTOSPELL_EXCEPTION_CHILD_DECLARATION(IndexTableReadingException);
 
-HFST_EXCEPTION_CHILD_DECLARATION(TransitionTableReadingException);
+HFSTOSPELL_EXCEPTION_CHILD_DECLARATION(TransitionTableReadingException);
 
-HFST_EXCEPTION_CHILD_DECLARATION(UnweightedSpellerException);
+HFSTOSPELL_EXCEPTION_CHILD_DECLARATION(UnweightedSpellerException);
 
-HFST_EXCEPTION_CHILD_DECLARATION(TransducerTypeException);
+HFSTOSPELL_EXCEPTION_CHILD_DECLARATION(TransducerTypeException);
 } // namespace
 #endif // _OL_EXCEPTIONS_H

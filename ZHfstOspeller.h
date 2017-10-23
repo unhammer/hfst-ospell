@@ -41,7 +41,7 @@
 #include "hfst-ol.h"
 #include "ZHfstOspellerXmlMetadata.h"
 
-namespace hfst_ol
+namespace hfst_ospell
   {
     //! @brief ZHfstOspeller class holds one speller contained in one
     //!        zhfst file.
@@ -195,7 +195,7 @@ namespace hfst_ol
           explicit ZHfstTemporaryWritingError(const std::string& message) : ZHfstException(message) {}
     };
 
-  } // namespace hfst_ol
+  } // namespace hfst_ospell
 
 
 #endif // HFST_OSPELL_OSPELLER_SET_H_

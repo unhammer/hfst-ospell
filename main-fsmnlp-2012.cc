@@ -38,8 +38,8 @@
 #include "ZHfstOspeller.h"
 
 
-using hfst_ol::ZHfstOspeller;
-using hfst_ol::Transducer;
+using hfst_ospell::ZHfstOspeller;
+using hfst_ospell::Transducer;
 
 static bool quiet = false;
 static bool verbose = false;
@@ -98,24 +98,24 @@ legacy_spell(const char* errmodel_filename, const char* acceptor_filename)
               << std::endl;
         return EXIT_FAILURE;
     }
-    hfst_ol::Transducer * mutator;
-    hfst_ol::Transducer * lexicon;
-    mutator = new hfst_ol::Transducer(mutator_file);
+    hfst_ospell::Transducer * mutator;
+    hfst_ospell::Transducer * lexicon;
+    mutator = new hfst_ospell::Transducer(mutator_file);
     if (!mutator->is_weighted()) {
         std::cerr << "Error source was unweighted, exiting\n\n";
         return EXIT_FAILURE;
     }
-    lexicon = new hfst_ol::Transducer(lexicon_file);
+    lexicon = new hfst_ospell::Transducer(lexicon_file);
     if (!lexicon->is_weighted()) {
         std::cerr << "Lexicon was unweighted, exiting\n\n";
         return EXIT_FAILURE;
     }
     
-    hfst_ol::Speller * speller;
+    hfst_ospell::Speller * speller;
 
     try {
-        speller = new hfst_ol::Speller(mutator, lexicon);
-    } catch (hfst_ol::AlphabetTranslationException& e) {
+        speller = new hfst_ospell::Speller(mutator, lexicon);
+    } catch (hfst_ospell::AlphabetTranslationException& e) {
         std::cerr <<
         "Unable to build speller - symbol " << e.what() << " not "
         "present in lexicon's alphabet\n";
@@ -128,7 +128,7 @@ legacy_spell(const char* errmodel_filename, const char* acceptor_filename)
         if (speller->check(str)) {
         std::cout << "\"" << str << "\" is in the lexicon\n\n";
         } else {
-        hfst_ol::CorrectionQueue corrections = speller->correct(str);
+        hfst_ospell::CorrectionQueue corrections = speller->correct(str);
         if (corrections.size() > 0) {
             std::cout << "Corrections for \"" << str << "\":\n";
             while (corrections.size() > 0)
@@ -168,39 +168,39 @@ fallback_spell(const char* errmodel_filename1, const char* errmodel_filename2,
               << std::endl;
         return EXIT_FAILURE;
     }
-    hfst_ol::Transducer * mutator1;
-    hfst_ol::Transducer * mutator2;
-    hfst_ol::Transducer * lexicon;
-    mutator1= new hfst_ol::Transducer(mutator_file1);
+    hfst_ospell::Transducer * mutator1;
+    hfst_ospell::Transducer * mutator2;
+    hfst_ospell::Transducer * lexicon;
+    mutator1= new hfst_ospell::Transducer(mutator_file1);
     if (!mutator1->is_weighted()) {
         std::cerr << "Error source was unweighted, exiting\n\n";
         return EXIT_FAILURE;
     }
-    mutator2= new hfst_ol::Transducer(mutator_file2);
+    mutator2= new hfst_ospell::Transducer(mutator_file2);
     if (!mutator2->is_weighted()) {
         std::cerr << "Error source was unweighted, exiting\n\n";
         return EXIT_FAILURE;
     }
-    lexicon = new hfst_ol::Transducer(lexicon_file);
+    lexicon = new hfst_ospell::Transducer(lexicon_file);
     if (!lexicon->is_weighted()) {
         std::cerr << "Lexicon was unweighted, exiting\n\n";
         return EXIT_FAILURE;
     }
     
-    hfst_ol::Speller * speller1;
-    hfst_ol::Speller * speller2;
+    hfst_ospell::Speller * speller1;
+    hfst_ospell::Speller * speller2;
 
     try {
-        speller1 = new hfst_ol::Speller(mutator1, lexicon);
-    } catch (hfst_ol::AlphabetTranslationException& e) {
+        speller1 = new hfst_ospell::Speller(mutator1, lexicon);
+    } catch (hfst_ospell::AlphabetTranslationException& e) {
         std::cerr <<
         "Unable to build speller - symbol " << e.what() << " not "
         "present in lexicon's alphabet\n";
         return EXIT_FAILURE;
     }
     try {
-        speller2 = new hfst_ol::Speller(mutator2, lexicon);
-    } catch (hfst_ol::AlphabetTranslationException& e) {
+        speller2 = new hfst_ospell::Speller(mutator2, lexicon);
+    } catch (hfst_ospell::AlphabetTranslationException& e) {
         std::cerr <<
         "Unable to build speller - symbol " << e.what() << " not "
         "present in lexicon's alphabet\n";
@@ -213,7 +213,7 @@ fallback_spell(const char* errmodel_filename1, const char* errmodel_filename2,
         if (speller1->check(str)) {
         std::cout << "\"" << str << "\" is in the lexicon 1\n\n";
         } else {
-        hfst_ol::CorrectionQueue corrections1 = speller1->correct(str);
+        hfst_ospell::CorrectionQueue corrections1 = speller1->correct(str);
         if (corrections1.size() > 0) {
             std::cout << "Corrections for \"" << str << "\" w/ source 1:\n";
             while (corrections1.size() > 0)
@@ -223,7 +223,7 @@ fallback_spell(const char* errmodel_filename1, const char* errmodel_filename2,
             }
             std::cout << std::endl;
         } else {
-	    hfst_ol::CorrectionQueue corrections2 = speller2->correct(str);
+	    hfst_ospell::CorrectionQueue corrections2 = speller2->correct(str);
 	    if (corrections2.size() > 0) {
 		std::cout << "Corrections for \"" << str << "\" w/ source 2:\n";
 		while (corrections2.size() > 0)
@@ -250,7 +250,7 @@ zhfst_spell(char* zhfst_filename)
     {
       speller.read_zhfst(zhfst_filename);
     }
-  catch (hfst_ol::ZHfstZipReadingError zhzre)
+  catch (hfst_ospell::ZHfstZipReadingError zhzre)
     {
       std::cerr << "cannot read zhfst archive " << zhfst_filename << ":" 
           << std::endl
@@ -258,7 +258,7 @@ zhfst_spell(char* zhfst_filename)
           << "trying to read as legacy automata directory" << std::endl;
       speller.read_legacy(zhfst_filename);
     }
-  catch (hfst_ol::ZHfstLegacyReadingError zhlre)
+  catch (hfst_ospell::ZHfstLegacyReadingError zhlre)
     {
       std::cerr << "cannot read legacy hfst speller dir " << zhfst_filename 
           << ":" << std::endl
@@ -281,7 +281,7 @@ zhfst_spell(char* zhfst_filename)
         if (speller.spell(str)) {
         std::cout << "\"" << str << "\" is in the lexicon\n\n";
         } else {
-        hfst_ol::CorrectionQueue corrections = speller.suggest(str);
+        hfst_ospell::CorrectionQueue corrections = speller.suggest(str);
         if (corrections.size() > 0) {
             std::cout << "Corrections for \"" << str << "\":\n";
             while (corrections.size() > 0)

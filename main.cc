@@ -40,15 +40,15 @@
 #include "ospell.h"
 #include "ZHfstOspeller.h"
 
-using hfst_ol::ZHfstOspeller;
-using hfst_ol::Transducer;
+using hfst_ospell::ZHfstOspeller;
+using hfst_ospell::Transducer;
 
 static bool quiet = false;
 static bool verbose = false;
 static bool analyse = false;
 static unsigned long suggs = 0;
-static hfst_ol::Weight max_weight = -1.0;
-static hfst_ol::Weight beam = -1.0;
+static hfst_ospell::Weight max_weight = -1.0;
+static hfst_ospell::Weight beam = -1.0;
 static float time_cutoff = 0.0;
 static std::string error_model_filename = "";
 static std::string lexicon_filename = "";
@@ -164,7 +164,7 @@ bool print_short_help(void)
 void
 do_suggest(ZHfstOspeller& speller, const std::string& str)
   {
-    hfst_ol::CorrectionQueue corrections = speller.suggest(str);
+    hfst_ospell::CorrectionQueue corrections = speller.suggest(str);
     if (corrections.size() > 0) 
     {
         hfst_fprintf(stdout, "Corrections for \"%s\":\n", str.c_str());
@@ -173,7 +173,7 @@ do_suggest(ZHfstOspeller& speller, const std::string& str)
             const std::string& corr = corrections.top().first;
             if (analyse)
               {
-                hfst_ol::AnalysisQueue anals = speller.analyse(corr, true);
+                hfst_ospell::AnalysisQueue anals = speller.analyse(corr, true);
                 bool all_discarded = true;
                 while (anals.size() > 0)
                   {
@@ -229,7 +229,7 @@ do_spell(ZHfstOspeller& speller, const std::string& str)
         if (analyse)
           {
             hfst_fprintf(stdout, "analysing:\n");
-            hfst_ol::AnalysisQueue anals = speller.analyse(str, false);
+            hfst_ospell::AnalysisQueue anals = speller.analyse(str, false);
             bool all_no_spell = true;
             while (anals.size() > 0)
               {
@@ -281,7 +281,7 @@ zhfst_spell(char* zhfst_filename)
     {
       speller.read_zhfst(zhfst_filename);
     }
-  catch (hfst_ol::ZHfstMetaDataParsingError zhmdpe)
+  catch (hfst_ospell::ZHfstMetaDataParsingError zhmdpe)
     {
       hfst_fprintf(stderr, "cannot finish reading zhfst archive %s:\n%s.\n", 
                          zhfst_filename, zhmdpe.what());
@@ -289,7 +289,7 @@ zhfst_spell(char* zhfst_filename)
       //             ":\n" << zhmdpe.what() << "." << std::endl;
       return EXIT_FAILURE;
     }
-  catch (hfst_ol::ZHfstZipReadingError zhzre)
+  catch (hfst_ospell::ZHfstZipReadingError zhzre)
     {
       //std::cerr << "cannot read zhfst archive " << zhfst_filename << ":\n" 
       //    << zhzre.what() << "." << std::endl
@@ -300,7 +300,7 @@ zhfst_spell(char* zhfst_filename)
                          zhfst_filename, zhzre.what());
       return EXIT_FAILURE;
     }
-  catch (hfst_ol::ZHfstXmlParsingError zhxpe)
+  catch (hfst_ospell::ZHfstXmlParsingError zhxpe)
     {
       //std::cerr << "Cannot finish reading index.xml from " 
       //  << zhfst_filename << ":" << std::endl
@@ -378,7 +378,7 @@ zhfst_spell(char* zhfst_filename)
 }
 
 int
-    legacy_spell(hfst_ol::Speller * s)
+    legacy_spell(hfst_ospell::Speller * s)
 {
       ZHfstOspeller speller;
       speller.inject_speller(s);
@@ -600,9 +600,9 @@ int main(int argc, char **argv)
           }
           FILE * err_file = fopen(error_model_filename.c_str(), "r");
           FILE * lex_file = fopen(lexicon_filename.c_str(), "r");
-          hfst_ol::Transducer err(err_file);
-          hfst_ol::Transducer lex(lex_file);
-          hfst_ol::Speller * s = new hfst_ol::Speller(&err, &lex);
+          hfst_ospell::Transducer err(err_file);
+          hfst_ospell::Transducer lex(lex_file);
+          hfst_ospell::Speller * s = new hfst_ospell::Speller(&err, &lex);
           return legacy_spell(s);
       }
     return EXIT_SUCCESS;

@@ -18,7 +18,7 @@
 #  include <config.h>
 #endif
 
-namespace hfst_ol {
+namespace hfst_ospell {
 
 template <typename T>
 inline T hfst_deref(T* ptr)
@@ -121,7 +121,7 @@ TransducerHeader::read_property(bool& property, FILE* f)
     } else {
         unsigned int prop;
         if (fread(&prop,sizeof(uint32_t),1,f) != 1) {
-            HFST_THROW_MESSAGE(HeaderParsingException,
+            HFSTOSPELL_THROW_MESSAGE(HeaderParsingException,
                                "Header ended unexpectedly\n");
         }
         if (prop == 0)
@@ -168,23 +168,23 @@ void TransducerHeader::skip_hfst3_header(FILE * f)
         } else {
             if (fread(&remaining_header_len,
                       sizeof(remaining_header_len), 1, f) != 1) {
-                HFST_THROW_MESSAGE(HeaderParsingException,
+                HFSTOSPELL_THROW_MESSAGE(HeaderParsingException,
                                    "Found broken HFST3 header\n");
             }
         }
         //std::cerr << "remaining_header_len " << remaining_header_len << std::endl;
         if (getc(f) != '\0') {
-            HFST_THROW_MESSAGE(HeaderParsingException,
+            HFSTOSPELL_THROW_MESSAGE(HeaderParsingException,
                                "Found broken HFST3 header\n");
         }
         char * headervalue = new char[remaining_header_len];
         if (fread(headervalue, remaining_header_len, 1, f) != 1)
         {
-            HFST_THROW_MESSAGE(HeaderParsingException,
+            HFSTOSPELL_THROW_MESSAGE(HeaderParsingException,
                                "HFST3 header ended unexpectedly\n");
         }
         if (headervalue[remaining_header_len - 1] != '\0') {
-            HFST_THROW_MESSAGE(HeaderParsingException,
+            HFSTOSPELL_THROW_MESSAGE(HeaderParsingException,
                                "Found broken HFST3 header\n");
         }
         std::string header_tail(headervalue, remaining_header_len);
@@ -193,7 +193,7 @@ void TransducerHeader::skip_hfst3_header(FILE * f)
             if (header_tail.find("HFST_OL") != type_field + 5 &&
                 header_tail.find("HFST_OLW") != type_field + 5) {
                 delete[] headervalue;
-                HFST_THROW_MESSAGE(
+                HFSTOSPELL_THROW_MESSAGE(
                     TransducerTypeException,
                     "Transducer has incorrect type, should be "
                     "hfst-optimized-lookup\n");
@@ -268,7 +268,7 @@ TransducerHeader::TransducerHeader(FILE* f)
                   sizeof(TransitionTableIndex),1,f) != 1||
             fread(&number_of_transitions,
                   sizeof(TransitionTableIndex),1,f) != 1) {
-            HFST_THROW_MESSAGE(HeaderParsingException,
+            HFSTOSPELL_THROW_MESSAGE(HeaderParsingException,
                                "Header ended unexpectedly\n");
         }
     }
@@ -429,7 +429,7 @@ void TransducerAlphabet::read(FILE * f, SymbolNumber number_of_symbols)
     while ( (byte = fgetc(f)) != 0 ) {
         /* pass over epsilon */
         if (byte == EOF) {
-            HFST_THROW(AlphabetParsingException);
+            HFSTOSPELL_THROW(AlphabetParsingException);
         }
     }
 
@@ -437,7 +437,7 @@ void TransducerAlphabet::read(FILE * f, SymbolNumber number_of_symbols)
         char * sym = line;
         while ( (byte = fgetc(f)) != 0 ) {
             if (byte == EOF) {
-                HFST_THROW(AlphabetParsingException);
+                HFSTOSPELL_THROW(AlphabetParsingException);
             }
             *sym = static_cast<char>(byte);
             ++sym;
@@ -667,7 +667,7 @@ void IndexTable::read(FILE * f,
     size_t table_size = number_of_table_entries*TransitionIndex::SIZE;
     indices = (char*)(malloc(table_size));
     if (fread(indices,table_size, 1, f) != 1) {
-        HFST_THROW(IndexTableReadingException);
+        HFSTOSPELL_THROW(IndexTableReadingException);
     }
     if (is_big_endian()) {
         convert_to_big_endian();
@@ -706,7 +706,7 @@ void TransitionTable::read(FILE * f,
     size_t table_size = number_of_table_entries*Transition::SIZE;
     transitions = (char*)(malloc(table_size));
     if (fread(transitions, table_size, 1, f) != 1) {
-        HFST_THROW(TransitionTableReadingException);
+        HFSTOSPELL_THROW(TransitionTableReadingException);
     }
     if (is_big_endian()) {
         convert_to_big_endian();
@@ -1032,4 +1032,4 @@ SymbolNumber Encoder::find_key(char ** p)
     return s;
 }
 
-} // namespace hfst_ol
+} // namespace hfst_ospell

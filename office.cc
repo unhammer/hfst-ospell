@@ -51,8 +51,8 @@
 
 #include "ZHfstOspeller.h"
 
-using hfst_ol::ZHfstOspeller;
-using hfst_ol::Transducer;
+using hfst_ospell::ZHfstOspeller;
+using hfst_ospell::Transducer;
 
 typedef std::map<UnicodeString,bool> valid_words_t;
 valid_words_t valid_words;
@@ -74,7 +74,7 @@ bool find_alternatives(ZHfstOspeller& speller, size_t suggs) {
 	for (size_t k=1 ; k <= cw ; ++k) {
 		buffer.clear();
 		words[cw-k].buffer.toUTF8String(buffer);
-		hfst_ol::CorrectionQueue corrections = speller.suggest(buffer);
+		hfst_ospell::CorrectionQueue corrections = speller.suggest(buffer);
 
 		if (corrections.size() == 0) {
 			continue;
@@ -277,15 +277,15 @@ int zhfst_spell(const char* zhfst_filename) {
 		speller.read_zhfst(zhfst_filename);
 		speller.set_time_cutoff(6.0);
 	}
-	catch (hfst_ol::ZHfstMetaDataParsingError zhmdpe) {
+	catch (hfst_ospell::ZHfstMetaDataParsingError zhmdpe) {
 		fprintf(stderr, "cannot finish reading zhfst archive %s:\n%s.\n", zhfst_filename, zhmdpe.what());
 		return EXIT_FAILURE;
 	}
-	catch (hfst_ol::ZHfstZipReadingError zhzre) {
+	catch (hfst_ospell::ZHfstZipReadingError zhzre) {
 		fprintf(stderr, "cannot read zhfst archive %s:\n%s.\n", zhfst_filename, zhzre.what());
 		return EXIT_FAILURE;
 	}
-	catch (hfst_ol::ZHfstXmlParsingError zhxpe) {
+	catch (hfst_ospell::ZHfstXmlParsingError zhxpe) {
 		fprintf(stderr, "Cannot finish reading index.xml from %s:\n%s.\n", zhfst_filename, zhxpe.what());
 		return EXIT_FAILURE;
 	}
