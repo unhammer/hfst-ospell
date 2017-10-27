@@ -818,6 +818,15 @@ AnalysisSymbolsQueue Speller::analyseSymbols(char * line, int nbest)
 
 void Speller::build_cache(SymbolNumber first_sym)
 {
+    size_t max_cache = 10;
+    if(cached.size() > max_cache) {
+        // LRU:
+        std::sort(cached.begin(),
+                  cached.end(),
+                  [this](SymbolNumber a, SymbolNumber b){ return cache[a].use > cache[b].use; });
+        cache[cached.back()].clear();
+        cached.pop_back();
+    }
     TreeNode start_node(FlagDiacriticState(get_state_size(), 0));
     queue.assign(1, start_node);
     limit = std::numeric_limits<Weight>::max();
@@ -862,6 +871,7 @@ void Speller::build_cache(SymbolNumber first_sym)
     cache[first_sym].results_len_0.assign(corrections_len_0.begin(), corrections_len_0.end());
     cache[first_sym].results_len_1.assign(corrections_len_1.begin(), corrections_len_1.end());
     cache[first_sym].empty = false;
+    cached.push_back(first_sym);
 }
 
 CorrectionQueue Speller::correct(char * line, int nbest,
@@ -890,6 +900,7 @@ CorrectionQueue Speller::correct(char * line, int nbest,
     if (cache[first_input].empty) {
         build_cache(first_input);
     }
+    ++cache[first_input].use;
     if (input.size() <= 1) {
         // get the cached results and we're done
         StringWeightVector * results;

@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <limits>
 #include <ctime>
+#include <algorithm>
 #include "hfst-ol.h"
 
 namespace hfst_ospell {
@@ -392,6 +393,7 @@ public:
     OperationMap * operations; //!< flags in it
     //!< A cache for the result of first symbols
     std::vector<CacheContainer> cache;
+    std::vector<SymbolNumber> cached;
     //!< what kind of limiting behaviour we have
     enum LimitingBehaviour { None, MaxWeight, Nbest, Beam, MaxWeightNbest,
                              MaxWeightBeam, NbestBeam, MaxWeightNbestBeam } limiting;
@@ -488,14 +490,17 @@ struct CacheContainer
     StringWeightVector results_len_0;
     StringWeightVector results_len_1;
     bool empty;
+    unsigned int use;
 
-    CacheContainer(void): empty(true) {}
+    CacheContainer(void): empty(true), use(0) {}
     
     void clear(void)
         {
             nodes.clear();
             results_len_0.clear();
             results_len_1.clear();
+            empty = true;
+            use = 0;
         }
     
 };
